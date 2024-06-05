@@ -11,10 +11,13 @@ import (
 	"path/filepath"
 
 	"golang.org/x/oauth2"
+	"golang.org/x/oauth2/google"
+	"google.golang.org/api/gmail/v1"
+	"google.golang.org/api/option"
 )
 
 // Retrieve a token, saves the token, then returns the generated client.
-func GetClient(config *oauth2.Config) *http.Client {
+func getClient(config *oauth2.Config) *http.Client {
 	tokFile := tokenFile()
 	tok, err := tokenFromFile(tokFile)
 	if err != nil {
@@ -71,4 +74,25 @@ func tokenFile() string {
 		log.Fatalf("Unable to get current user: %v", err)
 	}
 	return filepath.Join(usr.HomeDir, ".credentials/gmail-go.json")
+}
+
+func GetGmailService() *gmail.Service {
+	// Gmail client setup
+	ctx := context.Background()
+	b, err := os.ReadFile("cred/credentials.json")
+	if err != nil {
+		log.Fatalf("Unable to read client secret file: %v", err)
+	}
+	googleConfig, err := google.ConfigFromJSON(b, gmail.GmailReadonlyScope)
+	if err != nil {
+		log.Fatalf("Unable to parse client secret file to config: %v", err)
+	}
+	fmt.Println("getting client...")
+	client := getClient(googleConfig)
+
+	srv, err := gmail.NewService(ctx, option.WithHTTPClient(client))
+	if err != nil {
+		log.Fatalf("Unable to retrieve Gmail client: %v", err)
+	}
+	return srv
 }

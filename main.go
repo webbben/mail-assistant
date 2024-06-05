@@ -2,8 +2,6 @@ package main
 
 import (
 	"bufio"
-	"context"
-	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -12,18 +10,17 @@ import (
 	"time"
 
 	auth "github.com/webbben/valet-de-chambre/internal/auth"
+	"github.com/webbben/valet-de-chambre/internal/gmail"
 	"github.com/webbben/valet-de-chambre/internal/openai"
-	"golang.org/x/oauth2/google"
-	"google.golang.org/api/gmail/v1"
-	"google.golang.org/api/option"
 )
 
 type Config struct {
-	UserName       string `json:"user_name"`        // name of the human using this application
-	PromptID       string `json:"prompt_id"`        // id of the prompt text file to use when starting AI interaction
-	GmailAddr      string `json:"gmail_address"`    // gmail address to use
-	AIName         string `json:"ai_name"`          // Name of the AI email assistant
-	InboxCheckFreq int    `json:"inbox_check_freq"` // frequency in minutes in which the gmail inbox is checked for mail
+	UserName        string `json:"user_name"`         // name of the human using this application
+	PromptID        string `json:"prompt_id"`         // id of the prompt text file to use when starting AI interaction
+	GmailAddr       string `json:"gmail_address"`     // gmail address to use
+	AIName          string `json:"ai_name"`           // Name of the AI email assistant
+	InboxCheckFreq  int    `json:"inbox_check_freq"`  // frequency in minutes in which the gmail inbox is checked for mail
+	EmailBatchLimit int    `json:"email_batch_limit"` // limit to the number of emails that will be processed in a single batch
 }
 
 func loadConfig() (Config, error) {
@@ -52,29 +49,27 @@ func main() {
 		return
 	}
 
-	// Gmail client setup
-	ctx := context.Background()
-	b, err := os.ReadFile("cred/credentials.json")
-	if err != nil {
-		log.Fatalf("Unable to read client secret file: %v", err)
-	}
-	googleConfig, err := google.ConfigFromJSON(b, gmail.GmailReadonlyScope)
-	if err != nil {
-		log.Fatalf("Unable to parse client secret file to config: %v", err)
-	}
-	fmt.Println("getting client...")
-	client := auth.GetClient(googleConfig)
-
-	srv, err := gmail.NewService(ctx, option.WithHTTPClient(client))
-	if err != nil {
-		log.Fatalf("Unable to retrieve Gmail client: %v", err)
-	}
+	// Oauth + Gmail setup
+	srv := auth.GetGmailService()
 
 	// start loop listening for emails
 	for {
 		// check gmail inbox
-		emails := GetEmails(srv, appConfig.GmailAddr)
-		emails = append(emails, "Hi Ben,\nThis is James from Blacsand. Just reaching out to see if you are coming to the meeting next week. We want to discuss the Carity project and what the roadmap looks like.\n\nThanks,\nJames")
+		emails := gmail.GetEmails(srv, appConfig.GmailAddr, appConfig.EmailBatchLimit)
+		emails = append(emails, gmail.Email{From: "james@blacsand.io", Body: "Hi Ben,\nThis is James from Blacsand. Just reaching out to see if you are coming to the meeting next week. We want to discuss the Carity project and what the roadmap looks like.\n\nThanks,\nJames"})
+
+		fmt.Println("system: emails found:")
+		for _, email := range emails {
+			fmt.Println("From:", email.From)
+			fmt.Println("Date:", email.Date)
+			fmt.Println("Snippet:", email.Snippet)
+			fmt.Println("Email length:", len(email.Body))
+			fmt.Println("--------------\n", "--------------")
+		}
+		fmt.Print("process? [y/n]:")
+		if !yesOrNo() {
+			break
+		}
 
 		if len(emails) > 0 {
 			fmt.Printf("%s enters the room, approaching to convey a message for you.\n", appConfig.AIName)
@@ -84,7 +79,7 @@ func main() {
 					fmt.Println(appConfig.AIName+":", "Ah, and do you have time to hear another message? Or should I come back later?")
 
 				}
-				emailReply := GetResponseInteractive(email, apiKey, appConfig)
+				emailReply := GetResponseInteractive(email.Body, apiKey, appConfig)
 				if emailReply == "" {
 					continue
 				}
@@ -93,50 +88,7 @@ func main() {
 		}
 		time.Sleep(time.Minute * 60)
 	}
-}
-
-func GetEmails(srv *gmail.Service, emailAddr string) []string {
-	emails := []string{}
-	r, err := srv.Users.Messages.List(emailAddr).Do()
-	if err != nil {
-		log.Println("failed to list emails:", err)
-		return emails
-	}
-	if len(r.Messages) == 0 {
-		log.Println("No emails found.")
-		return emails
-	}
-	for _, msg := range r.Messages {
-		if len(emails) >= 3 {
-			break
-		}
-		msgBody, err, add := ProcessEmail(srv, msg.Id, emailAddr)
-		if err != nil {
-			log.Println("failed to process email:", err)
-		}
-		if add && len(msgBody) != 0 {
-			emails = append(emails, msgBody)
-		}
-	}
-	return emails
-}
-
-func ProcessEmail(srv *gmail.Service, messageID string, emailAddr string) (string, error, bool) {
-	msg, err := srv.Users.Messages.Get(emailAddr, messageID).Do()
-	if err != nil {
-		return "", err, false
-	}
-	msgDate := time.Unix(msg.InternalDate, 0)
-
-	// if the message more than a day old, ignore it
-	if msgDate.Before(time.Now().Add(-24 * time.Hour)) {
-		return "", nil, false
-	}
-	decoded, err := base64.URLEncoding.DecodeString(msg.Payload.Body.Data)
-	if err != nil {
-		return "", err, false
-	}
-	return string(decoded), nil, true
+	fmt.Printf("\n%s: Very well. I await your summons, Monsieur.\n", appConfig.AIName)
 }
 
 func GetResponseInteractive(message string, apiKey string, appConfig Config) string {
@@ -145,8 +97,6 @@ func GetResponseInteractive(message string, apiKey string, appConfig Config) str
 		fmt.Println("no prompt data.")
 		return ""
 	}
-	fmt.Println(appConfig.PromptID)
-	fmt.Println("prompt:\n", prompt)
 	messages := []openai.Message{
 		{
 			Role:    "system",
@@ -177,7 +127,11 @@ func GetResponseInteractive(message string, apiKey string, appConfig Config) str
 
 		if strings.Contains(content, "~~~") {
 			// A reply draft is in the output
-			reply = strings.Split(content, "~~~")[1]
+			reply := parseResponseFromAIOutput(content)
+			if reply == "" {
+				log.Println("No response parsed; exiting dialog.")
+				break
+			}
 			fmt.Println("Shall I send this response?")
 			fmt.Print("[Y/N]:")
 			if yesOrNo() {
@@ -185,7 +139,32 @@ func GetResponseInteractive(message string, apiKey string, appConfig Config) str
 			}
 		}
 	}
-	fmt.Printf("\n%s: Very well. I await your summons, Monsieur.\n", appConfig.AIName)
+	return reply
+}
+
+func parseResponseFromAIOutput(content string) string {
+	replyParts := strings.Split(content, "~~~")
+	reply := ""
+	if len(replyParts) == 0 {
+		log.Println("No ~~~ found in content. Are you sure there should be a reply?")
+		return ""
+	}
+	if len(replyParts) > 3 {
+		log.Println("too many ~~~ found... the content must be incorrectly formatted.")
+	}
+	// we expect the message to be wrapped inside ~~~
+	if len(replyParts) >= 2 {
+		reply = replyParts[1]
+	}
+	// if not found, look through all parts for the first appearance of text.
+	if reply == "" {
+		for _, part := range replyParts {
+			if part != "" {
+				return part
+			}
+		}
+		log.Println("No reply parsed...")
+	}
 	return reply
 }
 
