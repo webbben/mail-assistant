@@ -6,6 +6,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/webbben/valet-de-chambre/internal/openai"
 	"google.golang.org/api/gmail/v1"
 )
 
@@ -17,7 +18,7 @@ type Email struct {
 	Date    time.Time
 }
 
-func GetEmails(srv *gmail.Service, emailAddr string, limit int) []Email {
+func GetEmails(srv *gmail.Service, emailAddr string, limit int, openAIKey string) []Email {
 	fmt.Println("getting emails...")
 	emails := []Email{}
 	r, err := srv.Users.Messages.List(emailAddr).Do()
@@ -37,7 +38,7 @@ func GetEmails(srv *gmail.Service, emailAddr string, limit int) []Email {
 		if err != nil {
 			log.Println("failed to process email:", err)
 		}
-		if !add || isJunk(email) {
+		if !add || isJunk(email, openAIKey) {
 			continue
 		}
 		emails = append(emails, email)
@@ -46,13 +47,18 @@ func GetEmails(srv *gmail.Service, emailAddr string, limit int) []Email {
 	return emails
 }
 
-func isJunk(email Email) bool {
+// determines if the given email is junk or unwanted
+func isJunk(email Email, openAIKey string) bool {
 	if len(email.Body) == 0 {
 		log.Println("empty email?", email.From)
 		return true
 	}
-	if len(email.Body) > 20000 {
-		log.Println("email too long.", email.From)
+	if len(email.Body) > 5000 {
+		log.Println("email too long:", email.From)
+		return true
+	}
+	if openai.IsEmailSpam(openAIKey, email.Body) {
+		log.Println("spam email:", email.From, email.Snippet)
 		return true
 	}
 	return false

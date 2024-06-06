@@ -25,7 +25,7 @@ func LoadAPIKey() string {
 	return strings.TrimSpace(string(bytes))
 }
 
-func LoadPrompt(id string, name string, message string) string {
+func LoadPrompt(id string, aiName string, name string, message string) string {
 	path := "prompts/" + id + ".txt"
 	bytes, err := os.ReadFile(path)
 	if err != nil {
@@ -33,7 +33,7 @@ func LoadPrompt(id string, name string, message string) string {
 		return ""
 	}
 	s := strings.TrimSpace(string(bytes))
-	s = fmt.Sprintf(s, name, message)
+	s = fmt.Sprintf(s, aiName, name, message)
 	return s
 
 }
@@ -71,6 +71,33 @@ type Request struct {
 	Messages    []Message `json:"messages"`
 	FreqPenalty float64   `json:"frequency_penalty"` // penalize repeated tokens by giving a higher value. -2.0 to 2.0. defaults to 0.
 	Temperature float64   `json:"temperature"`       // 0 - 2; higher values like 0.8 make the output more random, while lower values like 0.2 make it more focused and deterministic. defaults to 1.
+}
+
+// Call the API to obtain a specific phrase from the AI, based on the given desired output prompt, and using the given personality prompt.
+//
+// Example:
+// Desired Output Prompt: "Dismiss yourself from the conversation in a formal way"
+// Personality Prompt: "You are a Butler from Victorian era England"
+func GetCustomPromptOutput(apiKey string, desiredOutputPrompt, personalityPrompt string) string {
+	messages := []Message{
+		{
+			Role:    "system",
+			Content: personalityPrompt,
+		},
+		{
+			Role:    "user",
+			Content: desiredOutputPrompt,
+		},
+	}
+	output := MakeAPICall(apiKey, messages)
+	return output[len(output)-1].Content
+}
+
+func IsEmailSpam(apiKey string, email string) bool {
+	outputPrompt := fmt.Sprintf("Email:\n\n%s", email)
+	personalityPrompt := "You are an assistant that judges if emails are from real people, or if they are spam, automated, newsletters, etc. Given an email, say \"<<<SPAM>>>\" if you think its spam, automated, a newsletter etc, or \"<<<PASS>>>\" if it looks like a normal email from a real person."
+	out := GetCustomPromptOutput(apiKey, outputPrompt, personalityPrompt)
+	return strings.TrimSpace(out) == "<<<SPAM>>>" || strings.Contains(out, "<<<SPAM>>>")
 }
 
 func MakeAPICall(apiKey string, requestMessages []Message) []Message {

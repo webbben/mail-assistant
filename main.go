@@ -52,10 +52,13 @@ func main() {
 	// Oauth + Gmail setup
 	srv := auth.GetGmailService()
 
+	// Get the standard greetings that will be used
+	dismiss := openai.GetCustomPromptOutput(apiKey, "You've just finished relaying all the messages you had for your lord, and are formally dismissing yourself until more messages arrive for him.", "You are a noble's valet-de-chambre from 18th century France, who takes care of various duties for him such as relaying messages.")
+
 	// start loop listening for emails
 	for {
 		// check gmail inbox
-		emails := gmail.GetEmails(srv, appConfig.GmailAddr, appConfig.EmailBatchLimit)
+		emails := gmail.GetEmails(srv, appConfig.GmailAddr, appConfig.EmailBatchLimit, apiKey)
 		emails = append(emails, gmail.Email{From: "james@blacsand.io", Body: "Hi Ben,\nThis is James from Blacsand. Just reaching out to see if you are coming to the meeting next week. We want to discuss the Carity project and what the roadmap looks like.\n\nThanks,\nJames"})
 
 		fmt.Println("system: emails found:")
@@ -74,11 +77,7 @@ func main() {
 		if len(emails) > 0 {
 			fmt.Printf("%s enters the room, approaching to convey a message for you.\n", appConfig.AIName)
 			fmt.Printf("(To dismiss %s at any time, enter 'q' in the prompt)\n\n", appConfig.AIName)
-			for i, email := range emails {
-				if i > 0 {
-					fmt.Println(appConfig.AIName+":", "Ah, and do you have time to hear another message? Or should I come back later?")
-
-				}
+			for _, email := range emails {
 				emailReply := GetResponseInteractive(email.Body, apiKey, appConfig)
 				if emailReply == "" {
 					continue
@@ -86,15 +85,15 @@ func main() {
 				fmt.Println("Sending response:\n", emailReply)
 			}
 		}
+		someoneTalks(appConfig.AIName, dismiss)
 		time.Sleep(time.Minute * 60)
 	}
-	fmt.Printf("\n%s: Very well. I await your summons, Monsieur.\n", appConfig.AIName)
 }
 
 func GetResponseInteractive(message string, apiKey string, appConfig Config) string {
-	prompt := openai.LoadPrompt(appConfig.PromptID, "Benjamin", message)
+	prompt := openai.LoadPrompt(appConfig.PromptID, appConfig.AIName, "Benjamin", message)
 	if prompt == "" {
-		fmt.Println("no prompt data.")
+		log.Println("no prompt data.")
 		return ""
 	}
 	messages := []openai.Message{
@@ -105,10 +104,10 @@ func GetResponseInteractive(message string, apiKey string, appConfig Config) str
 	}
 	output := openai.MakeAPICall(apiKey, messages)
 	if len(output) == 0 {
-		fmt.Printf("\n%s: *muttering to self* (Hmm, nevermind...)\n", appConfig.AIName)
+		log.Println("unexpected empty output from AI API")
 		return ""
 	}
-	fmt.Printf("\n%s: %s\n", appConfig.AIName, output[len(output)-1].Content)
+	someoneTalks(appConfig.AIName, output[len(output)-1].Content)
 
 	reply := ""
 	for {
@@ -123,6 +122,11 @@ func GetResponseInteractive(message string, apiKey string, appConfig Config) str
 		output = openai.MakeAPICall(apiKey, output)
 		content := output[len(output)-1].Content
 
+		if strings.TrimSpace(content) == "<<<IGNORE>>>" {
+			someoneTalks(appConfig.AIName, "Very well, Monsieur, I will not respond to the message.")
+			return ""
+		}
+
 		fmt.Printf("\n%s: %s\n", appConfig.AIName, content)
 
 		if strings.Contains(content, "~~~") {
@@ -132,11 +136,11 @@ func GetResponseInteractive(message string, apiKey string, appConfig Config) str
 				log.Println("No response parsed; exiting dialog.")
 				break
 			}
-			fmt.Println("Shall I send this response?")
-			fmt.Print("[Y/N]:")
+			someoneTalks(appConfig.AIName, "Shall I send this message?")
 			if yesOrNo() {
 				break
 			}
+			someoneTalks(appConfig.AIName, "Ah, how should I reply then, Monsieur?")
 		}
 	}
 	return reply
@@ -192,4 +196,8 @@ func yesOrNo() bool {
 func isYes(s string) bool {
 	s = strings.ToLower(s)
 	return s == "y" || s == "yes"
+}
+
+func someoneTalks(name string, statement string) {
+	fmt.Printf("\n%s: %s\n", name, statement)
 }

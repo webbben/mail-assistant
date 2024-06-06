@@ -1,8 +1,8 @@
 {
     "user_name": "Ben Webb",
     "ai_name": "Planchet",
-    "prompt_id": "valet5",
+    "prompt_id": "valet8",
     "gmail_address": "ben.webb340@gmail.com",
     "inbox_check_freq": 60,
-    "email_batch_limit": 10
+    "email_batch_limit": 5
 }
