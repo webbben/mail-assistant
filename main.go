@@ -10,28 +10,21 @@ import (
 	"time"
 
 	auth "github.com/webbben/valet-de-chambre/internal/auth"
+	emailcache "github.com/webbben/valet-de-chambre/internal/email_cache"
 	"github.com/webbben/valet-de-chambre/internal/gmail"
 	"github.com/webbben/valet-de-chambre/internal/openai"
+	t "github.com/webbben/valet-de-chambre/internal/types"
 )
 
-type Config struct {
-	UserName        string `json:"user_name"`         // name of the human using this application
-	PromptID        string `json:"prompt_id"`         // id of the prompt text file to use when starting AI interaction
-	GmailAddr       string `json:"gmail_address"`     // gmail address to use
-	AIName          string `json:"ai_name"`           // Name of the AI email assistant
-	InboxCheckFreq  int    `json:"inbox_check_freq"`  // frequency in minutes in which the gmail inbox is checked for mail
-	EmailBatchLimit int    `json:"email_batch_limit"` // limit to the number of emails that will be processed in a single batch
-}
-
-func loadConfig() (Config, error) {
+func loadConfig() (t.Config, error) {
 	bytes, err := os.ReadFile("config.json")
 	if err != nil {
-		return Config{}, err
+		return t.Config{}, err
 	}
-	var c Config
+	var c t.Config
 	err = json.Unmarshal(bytes, &c)
 	if err != nil {
-		return Config{}, err
+		return t.Config{}, err
 	}
 	return c, nil
 }
@@ -52,14 +45,19 @@ func main() {
 	// Oauth + Gmail setup
 	srv := auth.GetGmailService()
 
+	// Load email cache
+	if err := emailcache.LoadCacheFromDisk(); err != nil {
+		log.Println("failed to load cache:", err)
+	}
+
 	// Get the standard greetings that will be used
-	dismiss := openai.GetCustomPromptOutput(apiKey, "You've just finished relaying all the messages you had for your lord, and are formally dismissing yourself until more messages arrive for him.", "You are a noble's valet-de-chambre from 18th century France, who takes care of various duties for him such as relaying messages.")
+	dismiss := openai.GetCustomPromptOutput(apiKey, "You've just finished relaying all the messages you had for your lord, and are formally dismissing yourself until more messages arrive for him. Phrase it as a statement, not a question.", "You are a noble's valet-de-chambre from 18th century France, who takes care of various duties for him such as relaying messages.")
 
 	// start loop listening for emails
 	for {
 		// check gmail inbox
-		emails := gmail.GetEmails(srv, appConfig.GmailAddr, appConfig.EmailBatchLimit, apiKey)
-		emails = append(emails, gmail.Email{From: "james@blacsand.io", Body: "Hi Ben,\nThis is James from Blacsand. Just reaching out to see if you are coming to the meeting next week. We want to discuss the Carity project and what the roadmap looks like.\n\nThanks,\nJames"})
+		emails := gmail.GetEmails(srv, apiKey, appConfig)
+		emails = append(emails, t.Email{From: "james@blacsand.io", Body: "Hi Ben,\nThis is James from Blacsand. Just reaching out to see if you are coming to the meeting next week. We want to discuss the Carity project and what the roadmap looks like.\n\nThanks,\nJames"})
 
 		fmt.Println("system: emails found:")
 		for _, email := range emails {
@@ -69,7 +67,7 @@ func main() {
 			fmt.Println("Email length:", len(email.Body))
 			fmt.Println("--------------\n", "--------------")
 		}
-		fmt.Print("process? [y/n]:")
+		fmt.Print("process?")
 		if !yesOrNo() {
 			break
 		}
@@ -79,18 +77,34 @@ func main() {
 			fmt.Printf("(To dismiss %s at any time, enter 'q' in the prompt)\n\n", appConfig.AIName)
 			for _, email := range emails {
 				emailReply := GetResponseInteractive(email.Body, apiKey, appConfig)
-				if emailReply == "" {
+				if emailReply == "<<SKIP>>" {
+					emailcache.AddToCache(email, emailcache.IGNORE)
 					continue
 				}
-				fmt.Println("Sending response:\n", emailReply)
+				if emailReply == "" {
+					log.Println("email reply unexpectedly empty.")
+					continue
+				}
+				if emailReply == "<<QUIT>>" {
+					break
+				}
+				if err := gmail.SendReply(srv, appConfig.GmailAddr, email, emailReply); err != nil {
+					log.Println("failed to send reply:", err)
+				} else {
+					emailcache.AddToCache(email, emailcache.REPLY)
+					someoneTalks("SYS", "email successfully sent to "+email.From)
+				}
 			}
 		}
 		someoneTalks(appConfig.AIName, dismiss)
+		if err := emailcache.WriteCacheToDisk(); err != nil {
+			log.Println("failed to write cache:", err)
+		}
 		time.Sleep(time.Minute * 60)
 	}
 }
 
-func GetResponseInteractive(message string, apiKey string, appConfig Config) string {
+func GetResponseInteractive(message string, apiKey string, appConfig t.Config) string {
 	prompt := openai.LoadPrompt(appConfig.PromptID, appConfig.AIName, "Benjamin", message)
 	if prompt == "" {
 		log.Println("no prompt data.")
@@ -113,7 +127,7 @@ func GetResponseInteractive(message string, apiKey string, appConfig Config) str
 	for {
 		response := getUserInput()
 		if isQuit(response) {
-			return ""
+			return "<<QUIT>>"
 		}
 		output = append(messages, openai.Message{
 			Role:    "user",
@@ -124,7 +138,7 @@ func GetResponseInteractive(message string, apiKey string, appConfig Config) str
 
 		if strings.TrimSpace(content) == "<<<IGNORE>>>" {
 			someoneTalks(appConfig.AIName, "Very well, Monsieur, I will not respond to the message.")
-			return ""
+			return "<<SKIP>>"
 		}
 
 		fmt.Printf("\n%s: %s\n", appConfig.AIName, content)
@@ -138,7 +152,7 @@ func GetResponseInteractive(message string, apiKey string, appConfig Config) str
 			}
 			someoneTalks(appConfig.AIName, "Shall I send this message?")
 			if yesOrNo() {
-				break
+				return reply
 			}
 			someoneTalks(appConfig.AIName, "Ah, how should I reply then, Monsieur?")
 		}

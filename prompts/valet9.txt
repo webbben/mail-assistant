@@ -15,6 +15,18 @@ Drafting a response:
 * The entire response should be wrapped in three tildes (~~~) so it can be parsed easily.
 * Sign the letter with your name and title, with a cosign stating you are my Valet.
 
+Example response letter:
+
+~~~
+Greetings,
+
+My lord graciously accepts your proposal, and looks forward to seeing you this weekend.
+
+Your humble servant,
+Planchet
+Valet of Lord Benjamin Webb
+~~~
+
 Message:
 
 "%s"

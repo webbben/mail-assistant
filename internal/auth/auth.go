@@ -83,7 +83,13 @@ func GetGmailService() *gmail.Service {
 	if err != nil {
 		log.Fatalf("Unable to read client secret file: %v", err)
 	}
-	googleConfig, err := google.ConfigFromJSON(b, gmail.GmailReadonlyScope)
+
+	scopes := []string{
+		gmail.GmailReadonlyScope,
+		gmail.GmailModifyScope,
+	}
+
+	googleConfig, err := google.ConfigFromJSON(b, scopes...)
 	if err != nil {
 		log.Fatalf("Unable to parse client secret file to config: %v", err)
 	}

@@ -2,26 +2,21 @@ package gmail
 
 import (
 	"encoding/base64"
+	"errors"
 	"fmt"
 	"log"
 	"time"
 
+	emailcache "github.com/webbben/valet-de-chambre/internal/email_cache"
 	"github.com/webbben/valet-de-chambre/internal/openai"
+	t "github.com/webbben/valet-de-chambre/internal/types"
 	"google.golang.org/api/gmail/v1"
 )
 
-type Email struct {
-	From    string
-	Subject string
-	Body    string
-	Snippet string
-	Date    time.Time
-}
-
-func GetEmails(srv *gmail.Service, emailAddr string, limit int, openAIKey string) []Email {
+func GetEmails(srv *gmail.Service, openAIKey string, config t.Config) []t.Email {
 	fmt.Println("getting emails...")
-	emails := []Email{}
-	r, err := srv.Users.Messages.List(emailAddr).Do()
+	emails := []t.Email{}
+	r, err := srv.Users.Messages.List(config.GmailAddr).Do()
 	if err != nil {
 		log.Println("failed to list emails:", err)
 		return emails
@@ -31,12 +26,19 @@ func GetEmails(srv *gmail.Service, emailAddr string, limit int, openAIKey string
 		return emails
 	}
 	for _, msg := range r.Messages {
-		if len(emails) >= limit {
+		if len(emails) >= config.EmailBatchLimit {
 			break
 		}
-		email, err, add := processEmail(srv, msg.Id, emailAddr)
+		if _, isCached := emailcache.IsCached(msg.Id); isCached {
+			continue
+		}
+		email, err, add := processEmail(srv, msg.Id, config.GmailAddr)
 		if err != nil {
 			log.Println("failed to process email:", err)
+		}
+		if config.LookbackDays > 0 && email.Date.Before(time.Now().Add((-24*time.Hour)*time.Duration(config.LookbackDays))) {
+			log.Println("email too old:", email.Date, email.From)
+			break
 		}
 		if !add || isJunk(email, openAIKey) {
 			continue
@@ -48,13 +50,13 @@ func GetEmails(srv *gmail.Service, emailAddr string, limit int, openAIKey string
 }
 
 // determines if the given email is junk or unwanted
-func isJunk(email Email, openAIKey string) bool {
+func isJunk(email t.Email, openAIKey string) bool {
 	if len(email.Body) == 0 {
 		log.Println("empty email?", email.From)
 		return true
 	}
-	if len(email.Body) > 5000 {
-		log.Println("email too long:", email.From)
+	if len(email.Body) > 1500 {
+		log.Println("email too long:", len(email.Body), email.From)
 		return true
 	}
 	if openai.IsEmailSpam(openAIKey, email.Body) {
@@ -64,17 +66,10 @@ func isJunk(email Email, openAIKey string) bool {
 	return false
 }
 
-func processEmail(srv *gmail.Service, messageID string, emailAddr string) (Email, error, bool) {
+func processEmail(srv *gmail.Service, messageID string, emailAddr string) (t.Email, error, bool) {
 	msg, err := srv.Users.Messages.Get(emailAddr, messageID).Do()
 	if err != nil {
-		return Email{}, err, false
-	}
-	msgDate := time.Unix(msg.InternalDate, 0)
-
-	// if the message more than a day old, ignore it
-	if msgDate.Before(time.Now().Add(-24 * time.Hour)) {
-		log.Println("email too old?")
-		//return Email{}, nil, false
+		return t.Email{}, err, false
 	}
 
 	// get the email content
@@ -87,26 +82,68 @@ func processEmail(srv *gmail.Service, messageID string, emailAddr string) (Email
 	}
 	if body == "" {
 		log.Println("no plain text body found.")
-		return Email{}, nil, false
+		return t.Email{}, nil, false
 	}
 	decoded, err := base64.URLEncoding.DecodeString(body)
 	if err != nil {
-		return Email{}, err, false
+		return t.Email{}, err, false
 	}
-	email := Email{
-		Body:    string(decoded),
-		Snippet: msg.Snippet,
-		Date:    msgDate,
+	email := t.Email{
+		Body:     string(decoded),
+		Snippet:  msg.Snippet,
+		Date:     convInternalDateToTime(msg.InternalDate),
+		ID:       messageID,
+		ThreadID: msg.ThreadId,
 	}
 
 	// get headers
 	for _, header := range msg.Payload.Headers {
 		if header.Name == "From" {
-			email.From = header.Value
+			email.From = extractEmailAddr(header.Value)
 		}
 		if header.Name == "Subject" {
 			email.Subject = header.Value
 		}
 	}
 	return email, nil, true
+}
+
+func SendReply(srv *gmail.Service, userID string, replyToEmail t.Email, replyBody string) error {
+	replyMessage, err := createReply(replyToEmail, userID, replyBody)
+	if err != nil {
+		return err
+	}
+	_, err = srv.Users.Messages.Send(userID, replyMessage).Do()
+	return err
+}
+
+func createReply(replyToEmail t.Email, userID string, replyBody string) (*gmail.Message, error) {
+	if replyToEmail.ID == "" || replyToEmail.From == "" || userID == "" {
+		return nil, errors.New("failed to create reply; missing required email properties")
+	}
+	if replyToEmail.ThreadID == "" {
+		log.Println("no thread ID present?")
+	}
+	// make the headers
+	replySubject := "Re: " + replyToEmail.Subject
+	headers := make(map[string]string)
+	headers["From"] = userID
+	headers["To"] = replyToEmail.From
+	headers["Subject"] = replySubject
+	headers["In-Reply-To"] = replyToEmail.ID
+	headers["References"] = replyToEmail.ID
+	headers["Date"] = time.Now().Format(time.RFC1123Z)
+	var messageContent string
+	for k, v := range headers {
+		messageContent += fmt.Sprintf("%s: %s\r\n", k, v)
+	}
+	messageContent += "\r\n" + replyBody
+
+	// encode the email message
+	encodedEmail := base64.URLEncoding.EncodeToString([]byte(messageContent))
+	gMessage := &gmail.Message{
+		Raw:      encodedEmail,
+		ThreadId: replyToEmail.ThreadID,
+	}
+	return gMessage, nil
 }
