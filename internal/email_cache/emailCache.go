@@ -20,19 +20,20 @@ const (
 var cache map[string]EmailCacheDatum = make(map[string]EmailCacheDatum)
 
 type EmailCacheDatum struct {
-	MessageID string
-	Date      time.Time // date the email was created
-	From      string    // who is the email from
-	Action    string    // how was this email dealt with
+	MessageID  string
+	Date       time.Time // date the email was created
+	From       string    // who is the email from
+	Action     string    // how was this email dealt with
+	Categories string    // different categories attributed to this email (e.g. spam, noreply, etc)
 }
 
 func (datum EmailCacheDatum) String() string {
-	return fmt.Sprintf("%s %s %v %s", datum.MessageID, datum.From, datum.Date.Unix(), datum.Action)
+	return fmt.Sprintf("%s %s %v %s %s", datum.MessageID, datum.From, datum.Date.Unix(), datum.Action, datum.Categories)
 }
 
 func parseCacheLine(line string) (EmailCacheDatum, error) {
 	fields := strings.Fields(line)
-	if len(fields) != 4 {
+	if len(fields) < 4 {
 		return EmailCacheDatum{}, errors.New("cache line data corrupted or of incorrect format: " + line)
 	}
 	timestamp, err := strconv.Atoi(fields[2])
@@ -40,21 +41,26 @@ func parseCacheLine(line string) (EmailCacheDatum, error) {
 		return EmailCacheDatum{}, err
 	}
 
-	return EmailCacheDatum{
+	datum := EmailCacheDatum{
 		MessageID: fields[0],
 		From:      fields[1],
 		Date:      time.Unix(int64(timestamp), 0),
 		Action:    fields[3],
-	}, nil
+	}
+	if len(fields) > 4 {
+		datum.Categories = fields[4]
+	}
+	return datum, nil
 }
 
 // adds an email to the next batch of data to be cached
-func AddToCache(email t.Email, action string) {
+func AddToCache(email t.Email, action string, categories ...string) {
 	cache[email.ID] = EmailCacheDatum{
-		MessageID: email.ID,
-		From:      strings.ReplaceAll(email.From, " ", "_"), // just in case some spaces somehow snuck in
-		Date:      email.Date,
-		Action:    action,
+		MessageID:  email.ID,
+		From:       strings.ReplaceAll(email.From, " ", "_"), // just in case some spaces somehow snuck in
+		Date:       email.Date,
+		Action:     action,
+		Categories: strings.Join(categories, ";"),
 	}
 }
 

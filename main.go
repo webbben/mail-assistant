@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bufio"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -9,20 +8,13 @@ import (
 	"strings"
 	"time"
 
-	"github.com/fatih/color"
 	auth "github.com/webbben/valet-de-chambre/internal/auth"
 	"github.com/webbben/valet-de-chambre/internal/debug"
 	emailcache "github.com/webbben/valet-de-chambre/internal/email_cache"
 	"github.com/webbben/valet-de-chambre/internal/gmail"
 	"github.com/webbben/valet-de-chambre/internal/openai"
 	t "github.com/webbben/valet-de-chambre/internal/types"
-)
-
-var (
-	yellow  = color.New(color.FgYellow)
-	green   = color.New(color.FgGreen)
-	hi_blue = color.New(color.FgHiBlue)
-	gray    = color.New(color.FgHiBlack)
+	"github.com/webbben/valet-de-chambre/internal/util"
 )
 
 func loadConfig() (t.Config, error) {
@@ -63,12 +55,12 @@ func main() {
 	// Get the standard greetings that will be used
 	dismiss := openai.GetCustomPromptOutput(apiKey, "You've just finished relaying all the messages you had for your lord, and are formally dismissing yourself until more messages arrive for him. Phrase it as a statement, not a question.", "You are a noble's valet-de-chambre from 18th century France, who takes care of various duties for him such as relaying messages.")
 
-	someoneTalks("SYS", "Loading your emails from your inbox. This may take a minute...", gray)
+	util.SomeoneTalks("SYS", "Loading your emails from your inbox. This may take a minute...", util.Gray)
 	// start loop listening for emails
 	for {
 		// check gmail inbox
 		emails := gmail.GetEmails(srv, apiKey, appConfig)
-		someoneTalks("SYS", "Emails found:", gray)
+		util.SomeoneTalks("SYS", "Emails found:", util.Gray)
 		for _, email := range emails {
 			fmt.Println("From:", email.From)
 			fmt.Println("Date:", email.Date)
@@ -77,7 +69,7 @@ func main() {
 			fmt.Println("--------------\n", "--------------")
 		}
 		fmt.Print("process?")
-		if !yesOrNo() {
+		if !util.PromptYN() {
 			break
 		}
 
@@ -101,11 +93,11 @@ func main() {
 					log.Println("failed to send reply:", err)
 				} else {
 					emailcache.AddToCache(email, emailcache.REPLY)
-					someoneTalks("SYS", "email successfully sent to "+email.From, gray)
+					util.SomeoneTalks("SYS", "email successfully sent to "+email.From, util.Gray)
 				}
 			}
 		}
-		someoneTalks(appConfig.AIName, dismiss, hi_blue)
+		util.SomeoneTalks(appConfig.AIName, dismiss, util.Hi_blue)
 
 		emailcache.RemoveOldEntries(appConfig.LookbackDays)
 		if err := emailcache.WriteCacheToDisk(); err != nil {
@@ -132,12 +124,12 @@ func GetResponseInteractive(message string, apiKey string, appConfig t.Config) s
 		debug.Println("unexpected empty output from AI API")
 		return ""
 	}
-	someoneTalks(appConfig.AIName, output[len(output)-1].Content, hi_blue)
+	util.SomeoneTalks(appConfig.AIName, output[len(output)-1].Content, util.Hi_blue)
 
 	reply := ""
 	for {
-		response := getUserInput()
-		if isQuit(response) {
+		response := util.GetUserInput()
+		if util.IsQuit(response) {
 			return "<<QUIT>>"
 		}
 		output = append(messages, openai.Message{
@@ -148,10 +140,10 @@ func GetResponseInteractive(message string, apiKey string, appConfig t.Config) s
 		content := output[len(output)-1].Content
 
 		if strings.TrimSpace(content) == "<<<IGNORE>>>" {
-			someoneTalks(appConfig.AIName, "Very well, Monsieur, I will not respond to the message.", hi_blue)
+			util.SomeoneTalks(appConfig.AIName, "Very well, Monsieur, I will not respond to the message.", util.Hi_blue)
 			return "<<SKIP>>"
 		}
-		someoneTalks(appConfig.AIName, content, hi_blue)
+		util.SomeoneTalks(appConfig.AIName, content, util.Hi_blue)
 
 		if strings.Contains(content, "~~~") {
 			// A reply draft is in the output
@@ -160,11 +152,11 @@ func GetResponseInteractive(message string, apiKey string, appConfig t.Config) s
 				log.Println("No response parsed; exiting dialog.")
 				break
 			}
-			someoneTalks(appConfig.AIName, "Shall I send this message?", hi_blue)
-			if yesOrNo() {
+			util.SomeoneTalks(appConfig.AIName, "Shall I send this message?", util.Hi_blue)
+			if util.PromptYN() {
 				return reply
 			}
-			someoneTalks(appConfig.AIName, "Ah, how should I reply then, Monsieur?", hi_blue)
+			util.SomeoneTalks(appConfig.AIName, "Ah, how should I reply then, Monsieur?", util.Hi_blue)
 		}
 	}
 	return reply
@@ -194,38 +186,4 @@ func parseResponseFromAIOutput(content string) string {
 		debug.Println("No reply parsed...")
 	}
 	return reply
-}
-
-func getUserInput() string {
-	reader := bufio.NewReader(os.Stdin)
-	fmt.Print("\nUser: ")
-	resp, err := reader.ReadString('\n')
-	if err != nil {
-		log.Fatal("failed to read user input")
-	}
-	return strings.TrimSpace(resp)
-}
-
-func isQuit(s string) bool {
-	s = strings.ToLower(s)
-	return s == "q" || s == "quit" || s == "exit"
-}
-
-// returns true if the user answers Yes
-func yesOrNo() bool {
-	fmt.Print("[Y/N]:")
-	return isYes(getUserInput())
-}
-
-func isYes(s string) bool {
-	s = strings.ToLower(s)
-	return s == "y" || s == "yes"
-}
-
-func someoneTalks(name string, statement string, c *color.Color) {
-	if c == nil {
-		c = color.New(color.Reset)
-	}
-	sf := c.SprintFunc()
-	fmt.Printf(sf("\n%s: %s\n"), name, statement)
 }

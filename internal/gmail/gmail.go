@@ -14,6 +14,13 @@ import (
 	"google.golang.org/api/gmail/v1"
 )
 
+const (
+	SPAM     = "SPAM"
+	BAD_FORM = "BAD_FORM"
+	NOREPLY  = "NOREPLY"
+	OLD      = "OLD"
+)
+
 func GetEmails(srv *gmail.Service, openAIKey string, config t.Config) []t.Email {
 	debug.Println("getting emails...")
 	emails := []t.Email{}
@@ -33,18 +40,18 @@ func GetEmails(srv *gmail.Service, openAIKey string, config t.Config) []t.Email 
 		if _, isCached := emailcache.IsCached(msg.Id); isCached {
 			continue
 		}
-		email, err, add := processEmail(srv, msg.Id, config.GmailAddr)
+		email, err := processEmail(srv, msg.Id, config.GmailAddr)
 		if err != nil {
 			debug.Println("failed to process email:", err)
 			continue
 		}
 		if isEmailTooOld(email, config) {
 			debug.Println("email too old:", email.Date, email.From)
-			emailcache.AddToCache(email, emailcache.IGNORE)
+			emailcache.AddToCache(email, emailcache.IGNORE, OLD)
 			break
 		}
-		if !add || isJunk(email, openAIKey) {
-			emailcache.AddToCache(email, emailcache.IGNORE)
+		if junk, reason := isJunk(email, openAIKey); junk {
+			emailcache.AddToCache(email, emailcache.IGNORE, reason)
 			continue
 		}
 		emails = append(emails, email)
@@ -53,27 +60,31 @@ func GetEmails(srv *gmail.Service, openAIKey string, config t.Config) []t.Email 
 	return emails
 }
 
-// determines if the given email is junk or unwanted
-func isJunk(email t.Email, openAIKey string) bool {
+// determines if the given email is junk or unwanted, and if so, gives a category for why it is unwanted
+func isJunk(email t.Email, openAIKey string) (bool, string) {
 	if len(email.Body) == 0 {
-		debug.Println("empty email?", email.From)
-		return true
+		debug.Println("empty email:", email.From)
+		return true, BAD_FORM
 	}
 	if len(email.Body) > 1500 {
 		debug.Println("email too long:", len(email.Body), email.From)
-		return true
+		return true, BAD_FORM
+	}
+	if isEmailNoReply(email) {
+		debug.Println("no reply email:", email.From)
+		return true, NOREPLY
 	}
 	if openai.IsEmailSpam(openAIKey, email.Body) {
 		debug.Println("spam email:", email.From, email.Snippet)
-		return true
+		return true, SPAM
 	}
-	return false
+	return false, ""
 }
 
-func processEmail(srv *gmail.Service, messageID string, emailAddr string) (t.Email, error, bool) {
+func processEmail(srv *gmail.Service, messageID string, emailAddr string) (t.Email, error) {
 	msg, err := srv.Users.Messages.Get(emailAddr, messageID).Do()
 	if err != nil {
-		return t.Email{}, err, false
+		return t.Email{}, err
 	}
 	// basic info
 	email := t.Email{
@@ -99,17 +110,13 @@ func processEmail(srv *gmail.Service, messageID string, emailAddr string) (t.Ema
 			break
 		}
 	}
-	if body == "" {
-		log.Println("no plain text body found.")
-		return email, nil, false
-	}
 	decoded, err := base64.URLEncoding.DecodeString(body)
 	if err != nil {
-		return email, err, false
+		return email, err
 	}
 	email.Body = string(decoded)
 
-	return email, nil, true
+	return email, nil
 }
 
 func SendReply(srv *gmail.Service, userID string, replyToEmail t.Email, replyBody string) error {

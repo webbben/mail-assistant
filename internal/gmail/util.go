@@ -1,8 +1,8 @@
 package gmail
 
 import (
-	"fmt"
 	"regexp"
+	"strings"
 	"time"
 
 	t "github.com/webbben/valet-de-chambre/internal/types"
@@ -23,7 +23,6 @@ func extractEmailAddr(emailAddrHeader string) string {
 }
 
 func convInternalDateToTime(internalDate int64) time.Time {
-	fmt.Println(internalDate)
 	seconds := internalDate / 1000
 	nanoseconds := (internalDate % 1000) * int64(time.Millisecond)
 	return time.Unix(seconds, nanoseconds)
@@ -38,4 +37,9 @@ func isEmailTooOld(email t.Email, config t.Config) bool {
 		return false
 	}
 	return email.Date.Before(time.Now().Add((-24 * time.Hour) * time.Duration(config.LookbackDays)))
+}
+
+func isEmailNoReply(email t.Email) bool {
+	sender := strings.ToLower(email.From)
+	return strings.Contains(sender, "noreply") || strings.Contains(sender, "no-reply")
 }
