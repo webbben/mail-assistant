@@ -102,3 +102,17 @@ func LoadCacheFromDisk() error {
 	}
 	return nil
 }
+
+// removes entries in the cache that are too old and will no longer be processed
+//
+// lookbackDays should match the value in your configuration json
+func RemoveOldEntries(lookbackDays int) {
+	if lookbackDays == 0 {
+		return
+	}
+	for id, datum := range cache {
+		if datum.Date.Before(time.Now().Add(-24 * time.Hour * time.Duration(lookbackDays))) {
+			delete(cache, id)
+		}
+	}
+}

@@ -9,11 +9,20 @@ import (
 	"strings"
 	"time"
 
+	"github.com/fatih/color"
 	auth "github.com/webbben/valet-de-chambre/internal/auth"
+	"github.com/webbben/valet-de-chambre/internal/debug"
 	emailcache "github.com/webbben/valet-de-chambre/internal/email_cache"
 	"github.com/webbben/valet-de-chambre/internal/gmail"
 	"github.com/webbben/valet-de-chambre/internal/openai"
 	t "github.com/webbben/valet-de-chambre/internal/types"
+)
+
+var (
+	yellow  = color.New(color.FgYellow)
+	green   = color.New(color.FgGreen)
+	hi_blue = color.New(color.FgHiBlue)
+	gray    = color.New(color.FgHiBlack)
 )
 
 func loadConfig() (t.Config, error) {
@@ -34,6 +43,7 @@ func main() {
 	if err != nil {
 		log.Fatal("failed to load config json:", err)
 	}
+	debug.SetDebugMode(appConfig.Debug)
 
 	// OpenAI setup
 	apiKey := openai.LoadAPIKey()
@@ -53,13 +63,12 @@ func main() {
 	// Get the standard greetings that will be used
 	dismiss := openai.GetCustomPromptOutput(apiKey, "You've just finished relaying all the messages you had for your lord, and are formally dismissing yourself until more messages arrive for him. Phrase it as a statement, not a question.", "You are a noble's valet-de-chambre from 18th century France, who takes care of various duties for him such as relaying messages.")
 
+	someoneTalks("SYS", "Loading your emails from your inbox. This may take a minute...", gray)
 	// start loop listening for emails
 	for {
 		// check gmail inbox
 		emails := gmail.GetEmails(srv, apiKey, appConfig)
-		emails = append(emails, t.Email{From: "james@blacsand.io", Body: "Hi Ben,\nThis is James from Blacsand. Just reaching out to see if you are coming to the meeting next week. We want to discuss the Carity project and what the roadmap looks like.\n\nThanks,\nJames"})
-
-		fmt.Println("system: emails found:")
+		someoneTalks("SYS", "Emails found:", gray)
 		for _, email := range emails {
 			fmt.Println("From:", email.From)
 			fmt.Println("Date:", email.Date)
@@ -92,11 +101,13 @@ func main() {
 					log.Println("failed to send reply:", err)
 				} else {
 					emailcache.AddToCache(email, emailcache.REPLY)
-					someoneTalks("SYS", "email successfully sent to "+email.From)
+					someoneTalks("SYS", "email successfully sent to "+email.From, gray)
 				}
 			}
 		}
-		someoneTalks(appConfig.AIName, dismiss)
+		someoneTalks(appConfig.AIName, dismiss, hi_blue)
+
+		emailcache.RemoveOldEntries(appConfig.LookbackDays)
 		if err := emailcache.WriteCacheToDisk(); err != nil {
 			log.Println("failed to write cache:", err)
 		}
@@ -107,7 +118,7 @@ func main() {
 func GetResponseInteractive(message string, apiKey string, appConfig t.Config) string {
 	prompt := openai.LoadPrompt(appConfig.PromptID, appConfig.AIName, "Benjamin", message)
 	if prompt == "" {
-		log.Println("no prompt data.")
+		debug.Println("no prompt data.")
 		return ""
 	}
 	messages := []openai.Message{
@@ -118,10 +129,10 @@ func GetResponseInteractive(message string, apiKey string, appConfig t.Config) s
 	}
 	output := openai.MakeAPICall(apiKey, messages)
 	if len(output) == 0 {
-		log.Println("unexpected empty output from AI API")
+		debug.Println("unexpected empty output from AI API")
 		return ""
 	}
-	someoneTalks(appConfig.AIName, output[len(output)-1].Content)
+	someoneTalks(appConfig.AIName, output[len(output)-1].Content, hi_blue)
 
 	reply := ""
 	for {
@@ -137,11 +148,10 @@ func GetResponseInteractive(message string, apiKey string, appConfig t.Config) s
 		content := output[len(output)-1].Content
 
 		if strings.TrimSpace(content) == "<<<IGNORE>>>" {
-			someoneTalks(appConfig.AIName, "Very well, Monsieur, I will not respond to the message.")
+			someoneTalks(appConfig.AIName, "Very well, Monsieur, I will not respond to the message.", hi_blue)
 			return "<<SKIP>>"
 		}
-
-		fmt.Printf("\n%s: %s\n", appConfig.AIName, content)
+		someoneTalks(appConfig.AIName, content, hi_blue)
 
 		if strings.Contains(content, "~~~") {
 			// A reply draft is in the output
@@ -150,11 +160,11 @@ func GetResponseInteractive(message string, apiKey string, appConfig t.Config) s
 				log.Println("No response parsed; exiting dialog.")
 				break
 			}
-			someoneTalks(appConfig.AIName, "Shall I send this message?")
+			someoneTalks(appConfig.AIName, "Shall I send this message?", hi_blue)
 			if yesOrNo() {
 				return reply
 			}
-			someoneTalks(appConfig.AIName, "Ah, how should I reply then, Monsieur?")
+			someoneTalks(appConfig.AIName, "Ah, how should I reply then, Monsieur?", hi_blue)
 		}
 	}
 	return reply
@@ -164,11 +174,11 @@ func parseResponseFromAIOutput(content string) string {
 	replyParts := strings.Split(content, "~~~")
 	reply := ""
 	if len(replyParts) == 0 {
-		log.Println("No ~~~ found in content. Are you sure there should be a reply?")
+		debug.Println("No ~~~ found in content. Are you sure there should be a reply?")
 		return ""
 	}
 	if len(replyParts) > 3 {
-		log.Println("too many ~~~ found... the content must be incorrectly formatted.")
+		debug.Println("too many ~~~ found... the content must be incorrectly formatted.")
 	}
 	// we expect the message to be wrapped inside ~~~
 	if len(replyParts) >= 2 {
@@ -181,7 +191,7 @@ func parseResponseFromAIOutput(content string) string {
 				return part
 			}
 		}
-		log.Println("No reply parsed...")
+		debug.Println("No reply parsed...")
 	}
 	return reply
 }
@@ -212,6 +222,10 @@ func isYes(s string) bool {
 	return s == "y" || s == "yes"
 }
 
-func someoneTalks(name string, statement string) {
-	fmt.Printf("\n%s: %s\n", name, statement)
+func someoneTalks(name string, statement string, c *color.Color) {
+	if c == nil {
+		c = color.New(color.Reset)
+	}
+	sf := c.SprintFunc()
+	fmt.Printf(sf("\n%s: %s\n"), name, statement)
 }

@@ -7,6 +7,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/webbben/valet-de-chambre/internal/debug"
 	emailcache "github.com/webbben/valet-de-chambre/internal/email_cache"
 	"github.com/webbben/valet-de-chambre/internal/openai"
 	t "github.com/webbben/valet-de-chambre/internal/types"
@@ -14,7 +15,7 @@ import (
 )
 
 func GetEmails(srv *gmail.Service, openAIKey string, config t.Config) []t.Email {
-	fmt.Println("getting emails...")
+	debug.Println("getting emails...")
 	emails := []t.Email{}
 	r, err := srv.Users.Messages.List(config.GmailAddr).Do()
 	if err != nil {
@@ -22,7 +23,7 @@ func GetEmails(srv *gmail.Service, openAIKey string, config t.Config) []t.Email 
 		return emails
 	}
 	if len(r.Messages) == 0 {
-		log.Println("No emails found.")
+		debug.Println("No emails found.")
 		return emails
 	}
 	for _, msg := range r.Messages {
@@ -34,33 +35,36 @@ func GetEmails(srv *gmail.Service, openAIKey string, config t.Config) []t.Email 
 		}
 		email, err, add := processEmail(srv, msg.Id, config.GmailAddr)
 		if err != nil {
-			log.Println("failed to process email:", err)
+			debug.Println("failed to process email:", err)
+			continue
 		}
-		if config.LookbackDays > 0 && email.Date.Before(time.Now().Add((-24*time.Hour)*time.Duration(config.LookbackDays))) {
-			log.Println("email too old:", email.Date, email.From)
+		if isEmailTooOld(email, config) {
+			debug.Println("email too old:", email.Date, email.From)
+			emailcache.AddToCache(email, emailcache.IGNORE)
 			break
 		}
 		if !add || isJunk(email, openAIKey) {
+			emailcache.AddToCache(email, emailcache.IGNORE)
 			continue
 		}
 		emails = append(emails, email)
 	}
-	fmt.Println("... done!")
+	debug.Println("... done!")
 	return emails
 }
 
 // determines if the given email is junk or unwanted
 func isJunk(email t.Email, openAIKey string) bool {
 	if len(email.Body) == 0 {
-		log.Println("empty email?", email.From)
+		debug.Println("empty email?", email.From)
 		return true
 	}
 	if len(email.Body) > 1500 {
-		log.Println("email too long:", len(email.Body), email.From)
+		debug.Println("email too long:", len(email.Body), email.From)
 		return true
 	}
 	if openai.IsEmailSpam(openAIKey, email.Body) {
-		log.Println("spam email:", email.From, email.Snippet)
+		debug.Println("spam email:", email.From, email.Snippet)
 		return true
 	}
 	return false
@@ -71,7 +75,22 @@ func processEmail(srv *gmail.Service, messageID string, emailAddr string) (t.Ema
 	if err != nil {
 		return t.Email{}, err, false
 	}
-
+	// basic info
+	email := t.Email{
+		ID:       messageID,
+		Snippet:  msg.Snippet,
+		Date:     convInternalDateToTime(msg.InternalDate),
+		ThreadID: msg.ThreadId,
+	}
+	// get headers
+	for _, header := range msg.Payload.Headers {
+		if header.Name == "From" {
+			email.From = extractEmailAddr(header.Value)
+		}
+		if header.Name == "Subject" {
+			email.Subject = header.Value
+		}
+	}
 	// get the email content
 	body := ""
 	for _, part := range msg.Payload.Parts {
@@ -82,29 +101,14 @@ func processEmail(srv *gmail.Service, messageID string, emailAddr string) (t.Ema
 	}
 	if body == "" {
 		log.Println("no plain text body found.")
-		return t.Email{}, nil, false
+		return email, nil, false
 	}
 	decoded, err := base64.URLEncoding.DecodeString(body)
 	if err != nil {
-		return t.Email{}, err, false
+		return email, err, false
 	}
-	email := t.Email{
-		Body:     string(decoded),
-		Snippet:  msg.Snippet,
-		Date:     convInternalDateToTime(msg.InternalDate),
-		ID:       messageID,
-		ThreadID: msg.ThreadId,
-	}
+	email.Body = string(decoded)
 
-	// get headers
-	for _, header := range msg.Payload.Headers {
-		if header.Name == "From" {
-			email.From = extractEmailAddr(header.Value)
-		}
-		if header.Name == "Subject" {
-			email.Subject = header.Value
-		}
-	}
 	return email, nil, true
 }
 
@@ -122,7 +126,7 @@ func createReply(replyToEmail t.Email, userID string, replyBody string) (*gmail.
 		return nil, errors.New("failed to create reply; missing required email properties")
 	}
 	if replyToEmail.ThreadID == "" {
-		log.Println("no thread ID present?")
+		debug.Println("no thread ID present?")
 	}
 	// make the headers
 	replySubject := "Re: " + replyToEmail.Subject

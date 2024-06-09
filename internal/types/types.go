@@ -11,6 +11,7 @@ type Config struct {
 	InboxCheckFreq  int    `json:"inbox_check_freq"`  // frequency in minutes in which the gmail inbox is checked for mail
 	EmailBatchLimit int    `json:"email_batch_limit"` // limit to the number of emails that will be processed in a single batch
 	LookbackDays    int    `json:"lookback_days"`     // number of days to look back in the inbox (0 = no limit)
+	Debug           bool   `json:"debug"`             // if enabled, debug statements will be printed to the console
 }
 
 // a processed email
