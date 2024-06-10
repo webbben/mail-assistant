@@ -8,8 +8,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/webbben/valet-de-chambre/internal/openai"
-	"github.com/webbben/valet-de-chambre/internal/util"
+	"github.com/webbben/mail-assistant/internal/openai"
+	"github.com/webbben/mail-assistant/internal/util"
 )
 
 type Personality struct {

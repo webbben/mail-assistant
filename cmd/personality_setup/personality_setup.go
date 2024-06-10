@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/webbben/valet-de-chambre/internal/openai"
-	"github.com/webbben/valet-de-chambre/internal/personality"
+	"github.com/webbben/mail-assistant/internal/openai"
+	"github.com/webbben/mail-assistant/internal/personality"
 )
 
 func main() {

@@ -7,10 +7,10 @@ import (
 	"log"
 	"time"
 
-	"github.com/webbben/valet-de-chambre/internal/debug"
-	emailcache "github.com/webbben/valet-de-chambre/internal/email_cache"
-	"github.com/webbben/valet-de-chambre/internal/openai"
-	t "github.com/webbben/valet-de-chambre/internal/types"
+	"github.com/webbben/mail-assistant/internal/debug"
+	emailcache "github.com/webbben/mail-assistant/internal/email_cache"
+	"github.com/webbben/mail-assistant/internal/openai"
+	t "github.com/webbben/mail-assistant/internal/types"
 	"google.golang.org/api/gmail/v1"
 )
 

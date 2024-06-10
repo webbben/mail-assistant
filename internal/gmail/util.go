@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 
-	t "github.com/webbben/valet-de-chambre/internal/types"
+	t "github.com/webbben/mail-assistant/internal/types"
 )
 
 // To and From headers in Gmail may be formatted as "First Last <email.addr@gmail.com>"

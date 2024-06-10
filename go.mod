@@ -1,4 +1,4 @@
-module github.com/webbben/valet-de-chambre
+module github.com/webbben/mail-assistant
 
 go 1.21.4
 

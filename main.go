@@ -8,14 +8,14 @@ import (
 	"strings"
 	"time"
 
-	auth "github.com/webbben/valet-de-chambre/internal/auth"
-	"github.com/webbben/valet-de-chambre/internal/debug"
-	emailcache "github.com/webbben/valet-de-chambre/internal/email_cache"
-	"github.com/webbben/valet-de-chambre/internal/gmail"
-	"github.com/webbben/valet-de-chambre/internal/openai"
-	"github.com/webbben/valet-de-chambre/internal/personality"
-	t "github.com/webbben/valet-de-chambre/internal/types"
-	"github.com/webbben/valet-de-chambre/internal/util"
+	auth "github.com/webbben/mail-assistant/internal/auth"
+	"github.com/webbben/mail-assistant/internal/debug"
+	emailcache "github.com/webbben/mail-assistant/internal/email_cache"
+	"github.com/webbben/mail-assistant/internal/gmail"
+	"github.com/webbben/mail-assistant/internal/openai"
+	"github.com/webbben/mail-assistant/internal/personality"
+	t "github.com/webbben/mail-assistant/internal/types"
+	"github.com/webbben/mail-assistant/internal/util"
 )
 
 func loadConfig() (t.Config, error) {
