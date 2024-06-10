@@ -13,6 +13,7 @@ import (
 	emailcache "github.com/webbben/valet-de-chambre/internal/email_cache"
 	"github.com/webbben/valet-de-chambre/internal/gmail"
 	"github.com/webbben/valet-de-chambre/internal/openai"
+	"github.com/webbben/valet-de-chambre/internal/personality"
 	t "github.com/webbben/valet-de-chambre/internal/types"
 	"github.com/webbben/valet-de-chambre/internal/util"
 )
@@ -47,13 +48,17 @@ func main() {
 	// Oauth + Gmail setup
 	srv := auth.GetGmailService()
 
+	// load personality file
+	p, err := personality.Load(appConfig.PersonalityID)
+	if err != nil {
+		fmt.Println("failed to load personality file.")
+		// TODO use default personality
+	}
+
 	// Load email cache
 	if err := emailcache.LoadCacheFromDisk(); err != nil {
 		log.Println("failed to load cache:", err)
 	}
-
-	// Get the standard greetings that will be used
-	dismiss := openai.GetCustomPromptOutput(apiKey, "You've just finished relaying all the messages you had for your lord, and are formally dismissing yourself until more messages arrive for him. Phrase it as a statement, not a question.", "You are a noble's valet-de-chambre from 18th century France, who takes care of various duties for him such as relaying messages.")
 
 	util.SomeoneTalks("SYS", "Loading your emails from your inbox. This may take a minute...", util.Gray)
 	// start loop listening for emails
@@ -74,10 +79,11 @@ func main() {
 		}
 
 		if len(emails) > 0 {
-			fmt.Printf("%s enters the room, approaching to convey a message for you.\n", appConfig.AIName)
-			fmt.Printf("(To dismiss %s at any time, enter 'q' in the prompt)\n\n", appConfig.AIName)
+			fmt.Printf("%s enters the room, approaching to convey a message for you.\n", p.Name)
+			util.SomeoneTalks(p.Name, p.Phrases.Get("greeting"), util.Hi_blue)
+			fmt.Printf("(To dismiss %s at any time, enter 'q' in the prompt)\n\n", p.Name)
 			for _, email := range emails {
-				emailReply := GetResponseInteractive(email.Body, apiKey, appConfig)
+				emailReply := GetResponseInteractive(email.Body, apiKey, appConfig, p)
 				if emailReply == "<<SKIP>>" {
 					emailcache.AddToCache(email, emailcache.IGNORE)
 					continue
@@ -97,7 +103,7 @@ func main() {
 				}
 			}
 		}
-		util.SomeoneTalks(appConfig.AIName, dismiss, util.Hi_blue)
+		util.SomeoneTalks(p.Name, p.Phrases.Get("dismiss"), util.Hi_blue)
 
 		emailcache.RemoveOldEntries(appConfig.LookbackDays)
 		if err := emailcache.WriteCacheToDisk(); err != nil {
@@ -107,8 +113,8 @@ func main() {
 	}
 }
 
-func GetResponseInteractive(message string, apiKey string, appConfig t.Config) string {
-	prompt := openai.LoadPrompt(appConfig.PromptID, appConfig.AIName, "Benjamin", message)
+func GetResponseInteractive(message string, apiKey string, appConfig t.Config, p *personality.Personality) string {
+	prompt := openai.LoadPrompt(p.Prompts.EmailWorkflow, p.Name, appConfig.UserName, message)
 	if prompt == "" {
 		debug.Println("no prompt data.")
 		return ""
@@ -124,7 +130,7 @@ func GetResponseInteractive(message string, apiKey string, appConfig t.Config) s
 		debug.Println("unexpected empty output from AI API")
 		return ""
 	}
-	util.SomeoneTalks(appConfig.AIName, output[len(output)-1].Content, util.Hi_blue)
+	util.SomeoneTalks(p.Name, output[len(output)-1].Content, util.Hi_blue)
 
 	reply := ""
 	for {
@@ -140,10 +146,10 @@ func GetResponseInteractive(message string, apiKey string, appConfig t.Config) s
 		content := output[len(output)-1].Content
 
 		if strings.TrimSpace(content) == "<<<IGNORE>>>" {
-			util.SomeoneTalks(appConfig.AIName, "Very well, Monsieur, I will not respond to the message.", util.Hi_blue)
+			util.SomeoneTalks(p.Name, p.Phrases.Get("ignore"), util.Hi_blue)
 			return "<<SKIP>>"
 		}
-		util.SomeoneTalks(appConfig.AIName, content, util.Hi_blue)
+		util.SomeoneTalks(p.Name, content, util.Hi_blue)
 
 		if strings.Contains(content, "~~~") {
 			// A reply draft is in the output
@@ -152,11 +158,11 @@ func GetResponseInteractive(message string, apiKey string, appConfig t.Config) s
 				log.Println("No response parsed; exiting dialog.")
 				break
 			}
-			util.SomeoneTalks(appConfig.AIName, "Shall I send this message?", util.Hi_blue)
+			util.SomeoneTalks(p.Name, "Shall I send this message?", util.Hi_blue)
 			if util.PromptYN() {
 				return reply
 			}
-			util.SomeoneTalks(appConfig.AIName, "Ah, how should I reply then, Monsieur?", util.Hi_blue)
+			util.SomeoneTalks(p.Name, "Ah, how should I reply then, Monsieur?", util.Hi_blue)
 		}
 	}
 	return reply

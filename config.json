@@ -1,7 +1,6 @@
 {
     "user_name": "Ben Webb",
-    "ai_name": "Planchet",
-    "prompt_id": "valet10",
+    "personality_id": "valet_01",
     "gmail_address": "ben.webb340@gmail.com",
     "inbox_check_freq": 60,
     "email_batch_limit": 5,

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"math/rand"
 	"os"
 	"strings"
 
@@ -23,6 +24,26 @@ type Personality struct {
 type Phrases struct {
 	Dismiss  []string `json:"dismiss"`  // phrases for dismissal; what the AI says when an interaction has concluded
 	Greeting []string `json:"greeting"` // phrases for greeting; what the AI says when an interaction begins
+	Ignore   []string `json:"ignore"`   // phrases for ignoring a message
+}
+
+// gets a random phrase of the given type
+func (ph Phrases) Get(phraseName string) string {
+	set := []string{}
+	if phraseName == "dismiss" {
+		set = ph.Dismiss
+	}
+	if phraseName == "greeting" {
+		set = ph.Greeting
+	}
+	if phraseName == "ignore" {
+		set = ph.Ignore
+	}
+	if len(set) == 0 {
+		log.Println("failed to get phrase set; invalid phrase name:", phraseName)
+		return ""
+	}
+	return set[rand.Intn(len(set))]
 }
 
 type Prompts struct {
@@ -32,13 +53,31 @@ type Prompts struct {
 type PhraseBuilder struct {
 	Dismiss  string `json:"dismiss"`
 	Greeting string `json:"greeting"`
+	Ignore   string `json:"ignore"`
 }
 
 // use openAI's API to generate lists of phrases that this AI personality will use
 func (p *Personality) BuildPhrases(apiKey string) {
 	pb := p.PhraseBuilder
-	p.Phrases.Dismiss = buildPhrases(pb.Dismiss, 10, apiKey)
-	p.Phrases.Greeting = buildPhrases(pb.Greeting, 10, apiKey)
+	p.Phrases.Dismiss = buildPhrases(pb.Dismiss, p.BasePersonality, 10, apiKey)
+	p.Phrases.Greeting = buildPhrases(pb.Greeting, p.BasePersonality, 10, apiKey)
+	p.Phrases.Ignore = buildPhrases(pb.Ignore, p.BasePersonality, 5, apiKey)
+}
+
+// rebuilds the specified phrase sets. phrases just needs to contain the name of the phrase to regenerate, but I'd recommend doing something like a comma delimited list such as:
+//
+// "greeting,dismiss"
+func (p *Personality) RebuildPhrases(apiKey string, phrases string) {
+	pb := p.PhraseBuilder
+	if strings.Contains(phrases, "dismiss") {
+		p.Phrases.Dismiss = buildPhrases(pb.Dismiss, p.BasePersonality, 10, apiKey)
+	}
+	if strings.Contains(phrases, "greeting") {
+		p.Phrases.Greeting = buildPhrases(pb.Greeting, p.BasePersonality, 10, apiKey)
+	}
+	if strings.Contains(phrases, "ignore") {
+		p.Phrases.Ignore = buildPhrases(pb.Ignore, p.BasePersonality, 5, apiKey)
+	}
 }
 
 func (p *Personality) SaveToDisk() error {
@@ -58,11 +97,23 @@ func (p *Personality) SaveToDisk() error {
 	return nil
 }
 
+func Load(id string) (*Personality, error) {
+	bytes, err := os.ReadFile("personality/" + id + ".json")
+	if err != nil {
+		return nil, err
+	}
+	var p Personality
+	if err := json.Unmarshal(bytes, &p); err != nil {
+		return nil, err
+	}
+	return &p, nil
+}
+
 // generates a list of phrases based on the given phrase prompt. meant for building the AI personality's phrase set, which are used outside of the dynamic conversation time.
-func buildPhrases(phrasePrompt string, count int, apiKey string) []string {
+func buildPhrases(phrasePrompt string, basePersonality string, count int, apiKey string) []string {
 	phrases := make([]string, 0)
-	promptBase := "You are an assistant that generates phrases. Generate a phrase based on the following prompt and context, and return just the phrase - nothing else.\n"
-	prompt := promptBase + phrasePrompt
+	instructions := "\nUsing this personality, generate a phrase based on the following prompt and context, and return just the phrase, without quotes or anything else.\n"
+	prompt := basePersonality + instructions + phrasePrompt
 
 	input := []openai.Message{
 		{
