@@ -35,7 +35,6 @@ func LoadPrompt(id string, aiName string, name string, message string) string {
 	s := strings.TrimSpace(string(bytes))
 	s = fmt.Sprintf(s, aiName, name, message)
 	return s
-
 }
 
 type APIResponse struct {

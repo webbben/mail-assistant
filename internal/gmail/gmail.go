@@ -7,9 +7,10 @@ import (
 	"log"
 	"time"
 
+	"github.com/ollama/ollama/api"
 	"github.com/webbben/mail-assistant/internal/debug"
 	emailcache "github.com/webbben/mail-assistant/internal/email_cache"
-	"github.com/webbben/mail-assistant/internal/openai"
+	"github.com/webbben/mail-assistant/internal/llama"
 	t "github.com/webbben/mail-assistant/internal/types"
 	"google.golang.org/api/gmail/v1"
 )
@@ -21,7 +22,7 @@ const (
 	OLD      = "OLD"
 )
 
-func GetEmails(srv *gmail.Service, openAIKey string, config t.Config) []t.Email {
+func GetEmails(srv *gmail.Service, ollamaClient *api.Client, config t.Config) []t.Email {
 	debug.Println("getting emails...")
 	emails := []t.Email{}
 	r, err := srv.Users.Messages.List(config.GmailAddr).Do()
@@ -50,7 +51,7 @@ func GetEmails(srv *gmail.Service, openAIKey string, config t.Config) []t.Email 
 			emailcache.AddToCache(email, emailcache.IGNORE, OLD)
 			break
 		}
-		if junk, reason := isJunk(email, openAIKey); junk {
+		if junk, reason := isJunk(email, ollamaClient); junk {
 			emailcache.AddToCache(email, emailcache.IGNORE, reason)
 			continue
 		}
@@ -61,7 +62,7 @@ func GetEmails(srv *gmail.Service, openAIKey string, config t.Config) []t.Email 
 }
 
 // determines if the given email is junk or unwanted, and if so, gives a category for why it is unwanted
-func isJunk(email t.Email, openAIKey string) (bool, string) {
+func isJunk(email t.Email, ollamaClient *api.Client) (bool, string) {
 	if len(email.Body) == 0 {
 		debug.Println("empty email:", email.From)
 		return true, BAD_FORM
@@ -74,7 +75,7 @@ func isJunk(email t.Email, openAIKey string) (bool, string) {
 		debug.Println("no reply email:", email.From)
 		return true, NOREPLY
 	}
-	if openai.IsEmailSpam(openAIKey, email.Body) {
+	if llama.IsEmailSpam(ollamaClient, email.Body) {
 		debug.Println("spam email:", email.From, email.Snippet)
 		return true, SPAM
 	}

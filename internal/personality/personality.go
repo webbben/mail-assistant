@@ -13,12 +13,13 @@ import (
 )
 
 type Personality struct {
-	ID              string        `json:"id"`
-	Name            string        `json:"name"`             // name the AI assumes in interactions.
-	BasePersonality string        `json:"base_personality"` // description of the overall personality and behavior of this AI assistant, used as context for the other prompts.
-	Phrases         Phrases       `json:"phrases"`          // Generated phrases this AI uses in certain points of interactions
-	PhraseBuilder   PhraseBuilder `json:"phrase_builder"`   // Prompts used for generating phrases
-	Prompts         Prompts       `json:"prompts"`          // Prompts for main workflows (e.g. handling incoming emails)
+	ID              string            `json:"id"`
+	Name            string            `json:"name"`             // name the AI assumes in interactions.
+	BasePersonality string            `json:"base_personality"` // description of the overall personality and behavior of this AI assistant, used as context for the other prompts.
+	Phrases         Phrases           `json:"phrases"`          // Generated phrases this AI uses in certain points of interactions
+	PhraseBuilder   PhraseBuilder     `json:"phrase_builder"`   // Prompts used for generating phrases
+	Prompts         Prompts           `json:"prompts"`          // Prompts for main workflows (e.g. handling incoming emails)
+	InsertDict      map[string]string `json:"insert_dict"`      // dictionary of terms to insert into the prompts
 }
 
 type Phrases struct {
@@ -230,4 +231,19 @@ func NewPersonalitySetup(apiKey string) {
 	util.PrintlnColor(util.Green, "Saved to /personality/"+p.ID+".json!")
 
 	fmt.Println("Next steps: find your personality JSON and set the paths to the prompt text file you want to use. Then, to use this personality, set it in your config.json.")
+}
+
+func (p Personality) FormatPrompt(Username string, prompt string, messageToReply string) string {
+	output := prompt
+	if p.InsertDict == nil {
+		p.InsertDict = make(map[string]string)
+	}
+	p.InsertDict["user-name"] = Username
+	p.InsertDict["ai-name"] = p.Name
+	for key, val := range p.InsertDict {
+		key = "<<" + strings.ToUpper(key) + ">>"
+		output = strings.ReplaceAll(output, key, val)
+	}
+	output = fmt.Sprintf(output, messageToReply)
+	return output
 }

@@ -8,10 +8,12 @@ import (
 	"strings"
 	"time"
 
+	"github.com/ollama/ollama/api"
 	auth "github.com/webbben/mail-assistant/internal/auth"
 	"github.com/webbben/mail-assistant/internal/debug"
 	emailcache "github.com/webbben/mail-assistant/internal/email_cache"
 	"github.com/webbben/mail-assistant/internal/gmail"
+	"github.com/webbben/mail-assistant/internal/llama"
 	"github.com/webbben/mail-assistant/internal/openai"
 	"github.com/webbben/mail-assistant/internal/personality"
 	t "github.com/webbben/mail-assistant/internal/types"
@@ -31,19 +33,34 @@ func loadConfig() (t.Config, error) {
 	return c, nil
 }
 
+func loadPrompt(id string) string {
+	path := "prompts/" + id + ".txt"
+	bytes, err := os.ReadFile(path)
+	if err != nil {
+		fmt.Println("error reading prompt file:", err)
+		return ""
+	}
+	return strings.TrimSpace(string(bytes))
+}
+
 func main() {
+	// ollama
+	cmd, err := llama.StartServer()
+	if err != nil {
+		log.Fatal("failed to start ollama server:", err)
+	}
+	defer llama.StopServer(cmd)
+	ollamaClient, err := llama.GetClient()
+	if err != nil {
+		log.Fatal("failed to get ollama client:", err)
+	}
+
+	// app config
 	appConfig, err := loadConfig()
 	if err != nil {
 		log.Fatal("failed to load config json:", err)
 	}
 	debug.SetDebugMode(appConfig.Debug)
-
-	// OpenAI setup
-	apiKey := openai.LoadAPIKey()
-	if apiKey == "" {
-		fmt.Println("failed to load openai API key...")
-		return
-	}
 
 	// Oauth + Gmail setup
 	srv := auth.GetGmailService()
@@ -54,6 +71,7 @@ func main() {
 		fmt.Println("failed to load personality file.")
 		// TODO use default personality
 	}
+	emailReplyPrompt := loadPrompt(p.Prompts.EmailWorkflow)
 
 	// Load email cache
 	if err := emailcache.LoadCacheFromDisk(); err != nil {
@@ -64,7 +82,7 @@ func main() {
 	// start loop listening for emails
 	for {
 		// check gmail inbox
-		emails := gmail.GetEmails(srv, apiKey, appConfig)
+		emails := gmail.GetEmails(srv, ollamaClient, appConfig)
 		util.SomeoneTalks("SYS", "Emails found:", util.Gray)
 		for _, email := range emails {
 			fmt.Println("From:", email.From)
@@ -83,7 +101,7 @@ func main() {
 			util.SomeoneTalks(p.Name, p.Phrases.Get("greeting"), util.Hi_blue)
 			fmt.Printf("(To dismiss %s at any time, enter 'q' in the prompt)\n\n", p.Name)
 			for _, email := range emails {
-				emailReply := GetResponseInteractive(email.Body, apiKey, appConfig, p)
+				emailReply := GetResponseInteractive(email.Body, emailReplyPrompt, ollamaClient, appConfig, p)
 				if emailReply == "<<SKIP>>" {
 					emailcache.AddToCache(email, emailcache.IGNORE)
 					continue
@@ -113,24 +131,29 @@ func main() {
 	}
 }
 
-func GetResponseInteractive(message string, apiKey string, appConfig t.Config, p *personality.Personality) string {
+func GetResponseInteractive(message string, basePrompt string, ollamaClient *api.Client, appConfig t.Config, p *personality.Personality) string {
 	prompt := openai.LoadPrompt(p.Prompts.EmailWorkflow, p.Name, appConfig.UserName, message)
+	prompt = p.FormatPrompt(appConfig.UserName, basePrompt, message)
 	if prompt == "" {
 		debug.Println("no prompt data.")
 		return ""
 	}
-	messages := []openai.Message{
+	messages := []api.Message{
 		{
 			Role:    "system",
 			Content: prompt,
 		},
 	}
-	output := openai.MakeAPICall(apiKey, messages)
-	if len(output) == 0 {
+	messages, err := llama.ChatCompletion(ollamaClient, messages)
+	if err != nil {
+		log.Println("failed to generate chat completion:", err)
+		return ""
+	}
+	if len(messages) == 0 {
 		debug.Println("unexpected empty output from AI API")
 		return ""
 	}
-	util.SomeoneTalks(p.Name, output[len(output)-1].Content, util.Hi_blue)
+	util.SomeoneTalks(p.Name, messages[len(messages)-1].Content, util.Hi_blue)
 
 	reply := ""
 	for {
@@ -138,12 +161,16 @@ func GetResponseInteractive(message string, apiKey string, appConfig t.Config, p
 		if util.IsQuit(response) {
 			return "<<QUIT>>"
 		}
-		output = append(messages, openai.Message{
+		messages = append(messages, api.Message{
 			Role:    "user",
 			Content: response,
 		})
-		output = openai.MakeAPICall(apiKey, output)
-		content := output[len(output)-1].Content
+		messages, err = llama.ChatCompletion(ollamaClient, messages)
+		if err != nil {
+			log.Println("failed to generate chat completion:", err)
+			return ""
+		}
+		content := messages[len(messages)-1].Content
 
 		if strings.TrimSpace(content) == "<<<IGNORE>>>" {
 			util.SomeoneTalks(p.Name, p.Phrases.Get("ignore"), util.Hi_blue)
@@ -153,12 +180,12 @@ func GetResponseInteractive(message string, apiKey string, appConfig t.Config, p
 
 		if strings.Contains(content, "~~~") {
 			// A reply draft is in the output
-			reply := parseResponseFromAIOutput(content)
+			reply := parseReplyMessage(content)
 			if reply == "" {
 				log.Println("No response parsed; exiting dialog.")
 				break
 			}
-			util.SomeoneTalks(p.Name, "Shall I send this message?", util.Hi_blue)
+			//util.SomeoneTalks(p.Name, "Shall I send this message?", util.Hi_blue)
 			if util.PromptYN() {
 				return reply
 			}
@@ -168,7 +195,7 @@ func GetResponseInteractive(message string, apiKey string, appConfig t.Config, p
 	return reply
 }
 
-func parseResponseFromAIOutput(content string) string {
+func parseReplyMessage(content string) string {
 	replyParts := strings.Split(content, "~~~")
 	reply := ""
 	if len(replyParts) == 0 {

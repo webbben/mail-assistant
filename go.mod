@@ -1,6 +1,8 @@
 module github.com/webbben/mail-assistant
 
-go 1.21.4
+go 1.22.0
+
+toolchain go1.22.4
 
 require (
 	cloud.google.com/go/auth v0.4.2 // indirect
@@ -18,6 +20,7 @@ require (
 	github.com/googleapis/gax-go/v2 v2.12.4 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
+	github.com/ollama/ollama v0.1.43 // indirect
 	go.opencensus.io v0.24.0 // indirect
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.49.0 // indirect
 	go.opentelemetry.io/otel v1.24.0 // indirect
