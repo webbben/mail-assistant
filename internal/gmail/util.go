@@ -10,16 +10,22 @@ import (
 
 // To and From headers in Gmail may be formatted as "First Last <email.addr@gmail.com>"
 // this extracts just the email address portion
-func extractEmailAddr(emailAddrHeader string) string {
+func extractEmailAndName(emailAddrHeader string) (string, string) {
+	// see if there's a name
+	name := ""
+	pieces := strings.Split(emailAddrHeader, "<")
+	if len(pieces) > 1 {
+		name = strings.TrimSpace(pieces[0])
+	}
 	// regex pattern for email addresses
 	pattern := `(?i)([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})`
 	re := regexp.MustCompile(pattern)
 	matches := re.FindStringSubmatch(emailAddrHeader)
 	if len(matches) > 0 {
-		return matches[0]
+		return matches[0], name
 	}
 	// ... no email address found?
-	return ""
+	return "", ""
 }
 
 func convInternalDateToTime(internalDate int64) time.Time {

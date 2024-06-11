@@ -96,7 +96,9 @@ func processEmail(srv *gmail.Service, messageID string, emailAddr string) (t.Ema
 	// get headers
 	for _, header := range msg.Payload.Headers {
 		if header.Name == "From" {
-			email.From = extractEmailAddr(header.Value)
+			addr, name := extractEmailAndName(header.Value)
+			email.From = addr
+			email.SenderName = name
 		}
 		if header.Name == "Subject" {
 			email.Subject = header.Value

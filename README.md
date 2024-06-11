@@ -1,10 +1,9 @@
 # Personal Email Assistant
 
-This project lets you set up your own personal email assistant. And not only that - you can have the email assistant speak to you with mildly amusing and/or annoying 18th century English!
+This project lets you set up your own personal email assistant, who handles relaying incoming email messages to you, hearing your questions or replies, and then writing the reply for you on your behalf.
+It started as a fun little project where I wanted to pretend I was some kind of 18th century noble that has his own personal assistant - I've been reading too many Alexandre Dumas novels recently, I think. Anyway, I figured it would be funny to annoy my friends and random companies by having their messages answered on my behalf by an AI assistant that speaks whimsical, semi-archaic formal English.
 
-I was inspired to make this project after recently reading a lot of historic fiction; namely Alexandre Dumas' The Three Musketeers, as well as Scaramouche by Sabatini.
-Both of these are based in 18th century France, and include lots of nobility and aristocrat-type folks who have their own valets that relay them messages, treat them all fancy-like, etc.
-I thought to myself "wouldn't it be cool to have my own _valet-de-chambre_? Of course it would!" If nothing else, it's certainly funny to imagine my friends having to read my email responses in the voice of a Rennaissance era caricature.
+Since then, I decided to start generalizing this tool so that it could be configured to assume other personalities too. And in the future, I have more fun ideas, like telling the AI information about specific subjects, and letting it reply on my behalf if emails about those topics come in. Think of it like an advanced version of an "automated OOO" reply email, but for any topic you want.
 
 ## Required Setup
 
