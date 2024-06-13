@@ -4,10 +4,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"math/rand"
 	"os"
 	"strings"
 
+	"github.com/ollama/ollama/api"
+	"github.com/webbben/mail-assistant/internal/llama"
 	"github.com/webbben/mail-assistant/internal/openai"
 	"github.com/webbben/mail-assistant/internal/util"
 )
@@ -16,69 +17,32 @@ type Personality struct {
 	ID              string            `json:"id"`
 	Name            string            `json:"name"`             // name the AI assumes in interactions.
 	BasePersonality string            `json:"base_personality"` // description of the overall personality and behavior of this AI assistant, used as context for the other prompts.
-	Phrases         Phrases           `json:"phrases"`          // Generated phrases this AI uses in certain points of interactions
-	PhraseBuilder   PhraseBuilder     `json:"phrase_builder"`   // Prompts used for generating phrases
+	PhrasePrompts   map[string]string `json:"phrase_prompts"`   // Prompts used for generating phrases
 	Prompts         Prompts           `json:"prompts"`          // Prompts for main workflows (e.g. handling incoming emails)
 	InsertDict      map[string]string `json:"insert_dict"`      // dictionary of terms to insert into the prompts
-}
-
-type Phrases struct {
-	Dismiss  []string `json:"dismiss"`  // phrases for dismissal; what the AI says when an interaction has concluded
-	Greeting []string `json:"greeting"` // phrases for greeting; what the AI says when an interaction begins
-	Ignore   []string `json:"ignore"`   // phrases for ignoring a message
-}
-
-// gets a random phrase of the given type
-func (ph Phrases) Get(phraseName string) string {
-	set := []string{}
-	if phraseName == "dismiss" {
-		set = ph.Dismiss
-	}
-	if phraseName == "greeting" {
-		set = ph.Greeting
-	}
-	if phraseName == "ignore" {
-		set = ph.Ignore
-	}
-	if len(set) == 0 {
-		log.Println("failed to get phrase set; invalid phrase name:", phraseName)
-		return ""
-	}
-	return set[rand.Intn(len(set))]
 }
 
 type Prompts struct {
 	EmailWorkflow string `json:"email_workflow"` // prompt for how the email handling workflow and interaction should work.
 }
 
-type PhraseBuilder struct {
-	Dismiss  string `json:"dismiss"`
-	Greeting string `json:"greeting"`
-	Ignore   string `json:"ignore"`
-}
-
-// use openAI's API to generate lists of phrases that this AI personality will use
-func (p *Personality) BuildPhrases(apiKey string) {
-	pb := p.PhraseBuilder
-	p.Phrases.Dismiss = buildPhrases(pb.Dismiss, p.BasePersonality, 10, apiKey)
-	p.Phrases.Greeting = buildPhrases(pb.Greeting, p.BasePersonality, 10, apiKey)
-	p.Phrases.Ignore = buildPhrases(pb.Ignore, p.BasePersonality, 5, apiKey)
-}
-
-// rebuilds the specified phrase sets. phrases just needs to contain the name of the phrase to regenerate, but I'd recommend doing something like a comma delimited list such as:
-//
-// "greeting,dismiss"
-func (p *Personality) RebuildPhrases(apiKey string, phrases string) {
-	pb := p.PhraseBuilder
-	if strings.Contains(phrases, "dismiss") {
-		p.Phrases.Dismiss = buildPhrases(pb.Dismiss, p.BasePersonality, 10, apiKey)
+func (p Personality) GenPhrase(client *api.Client, phraseKey string) string {
+	if p.PhrasePrompts == nil {
+		log.Println("failed to generate phrase: no phrase prompts defined")
+		return ""
 	}
-	if strings.Contains(phrases, "greeting") {
-		p.Phrases.Greeting = buildPhrases(pb.Greeting, p.BasePersonality, 10, apiKey)
+	prompt := p.PhrasePrompts[phraseKey]
+	if prompt == "" {
+		log.Println("failed to generate phrase: given phraseKey not mapped")
+		return ""
 	}
-	if strings.Contains(phrases, "ignore") {
-		p.Phrases.Ignore = buildPhrases(pb.Ignore, p.BasePersonality, 5, apiKey)
+	system := p.BasePersonality + ". Return a phrase for the following prompt, but keep it brief - no longer than one or two sentences."
+	out, err := llama.GenerateCompletion(client, system, prompt)
+	if err != nil {
+		log.Println("failed to generate completion:", err)
+		return ""
 	}
+	return strings.Trim(out, "\"")
 }
 
 func (p *Personality) SaveToDisk() error {
@@ -138,7 +102,7 @@ func buildPhrases(phrasePrompt string, basePersonality string, count int, apiKey
 	return phrases
 }
 
-func NewPersonalitySetup(apiKey string) {
+func NewPersonalitySetup() {
 	p := Personality{}
 	q := false
 	defer func() {
@@ -189,38 +153,37 @@ func NewPersonalitySetup(apiKey string) {
 	fmt.Println("For example, a prompt for the Greeting phrase:")
 	fmt.Println("\"Greet me as a butler would greet the person he serves, and tell me that mail has arrived that you will relay for me\"")
 	fmt.Println("\n\nGreeting - What the AI assistant will say when starting an interaction with you.")
-	for p.PhraseBuilder.Greeting == "" {
+	p.PhrasePrompts = make(map[string]string)
+	for p.PhrasePrompts["greeting"] == "" {
 		fmt.Print("Greeting:")
 		input, q = util.Input()
 		if q {
 			return
 		}
-		p.PhraseBuilder.Greeting = input
+		p.PhrasePrompts["greeting"] = input
 	}
 
 	fmt.Println("\n\nDismiss - What the AI assistant will say when they are dismissed/are done relaying messages to you.")
-	for p.PhraseBuilder.Dismiss == "" {
+	for p.PhrasePrompts["dismiss"] == "" {
 		fmt.Print("Dismiss:")
 		input, q = util.Input()
 		if q {
 			return
 		}
-		p.PhraseBuilder.Dismiss = input
+		p.PhrasePrompts["dismiss"] = input
 	}
 
 	util.PrintlnColor(util.Hi_blue, "=== Review ===")
 	util.PrintlnColor(util.Hi_blue, "ID:", p.ID)
 	util.PrintlnColor(util.Hi_blue, "Name:", p.Name)
 	util.PrintlnColor(util.Hi_blue, "Description:", p.BasePersonality)
-	util.PrintlnColor(util.Hi_blue, "Greeting:", p.PhraseBuilder.Greeting)
-	util.PrintlnColor(util.Hi_blue, "Dismiss:", p.PhraseBuilder.Dismiss)
+	util.PrintlnColor(util.Hi_blue, "Greeting:", p.PhrasePrompts["greeting"])
+	util.PrintlnColor(util.Hi_blue, "Dismiss:", p.PhrasePrompts["dismiss"])
 
 	fmt.Print("Confirm? ")
 	if !util.PromptYN() {
 		return
 	}
-	util.PrintlnColor(util.Gray, "Building phrase sets. This may take a minute...")
-	p.BuildPhrases(apiKey)
 
 	util.PrintlnColor(util.Gray, "Saving personality JSON...")
 	err := p.SaveToDisk()
@@ -244,6 +207,8 @@ func (p Personality) FormatPrompt(Username string, prompt string, messageToReply
 		key = "<<" + strings.ToUpper(key) + ">>"
 		output = strings.ReplaceAll(output, key, val)
 	}
-	output = fmt.Sprintf(output, messageToReply)
+	if messageToReply != "" {
+		output = fmt.Sprintf(output, messageToReply)
+	}
 	return output
 }

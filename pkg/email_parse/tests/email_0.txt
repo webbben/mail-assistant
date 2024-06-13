@@ -1,0 +1,200 @@
+Delivered-To: ben.webb340@gmail.com
+Received: by 2002:a2e:a795:0:b0:2ec:95:d709 with SMTP id c21csp61293ljf;
+        Wed, 12 Jun 2024 05:08:29 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEbVNwulg/dxCpDOvQswwntr/HxIQYTKLeiLTtTIsm0QoiCAbM0PDgQPGsirGTsXNc8M1wO
+X-Received: by 2002:a05:6602:2c8b:b0:7eb:84c4:3673 with SMTP id ca18e2360f4ac-7ebb35d7ef5mr512456739f.4.1718194108979;
+        Wed, 12 Jun 2024 05:08:28 -0700 (PDT)
+ARC-Seal: i=2; a=rsa-sha256; t=1718194108; cv=pass;
+        d=google.com; s=arc-20160816;
+        b=NZKppC/txxleqFfMvz94HvfjR9yT1xEi5vigdTyE8vb+d7Ah0bhdd02VIMWrEXCPVr
+         /NHywbfu0i/D0gTZDffayWA1P5H5/nD/NByR1PiIep4wjUcEt9MeDf8w2gx5yv4cqLst
+         9nJgKNQlupq7X8la23ATk5kt6mXLZA3gutPY+XL3Bhnal0XdmygC8MdbAHnRiivBHt9s
+         D+TMM/DLv5u3jdixNbf77uYZUR/tBg4pJaj4EtX2aY+14f/TR8ok0pyS6ZzpHwOtFVK7
+         teLJzi1Ar0aYXcye/GCXb20+uyNyBp2zAbVHsg4MVLU43odE81bd6+iHOLdYOpiGlpzx
+         k97w==
+ARC-Message-Signature: i=2; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=mime-version:msip_labels:content-language:accept-language
+         :message-id:date:thread-index:thread-topic:subject:to:from
+         :dkim-signature:dkim-signature;
+        bh=aDTFUryeubV+AaZdtcdPbM31jxyi80uFHLmvOYcDPCM=;
+        fh=0jlPbjNkP9INYnQf0F+13bes7kjCq1/xIaUeOU9VJWs=;
+        b=P6YSzi94G8N/saBUtGkv/cNAWPQ9XFwm5MpZ9HQS+UyBipLCSIol4UQTBObMmtQo7x
+         SzfuKjB7Agdcm4QJMXQ8oXPO4wVmpqsBjB3B02KOHH0x+2lKDRItXe5tnxeQNf7KouZ8
+         zD9fBmzw3BvpL5TPkOmOFVIAftRfoNP8kFxOJFb9BS85Y7OOYNZ+uSDF5rlAz9MYitIP
+         KqH0yTp87Qejsv9x6WgUlMnQgORdqPRZ9pTiVkuHRzvgDO1CUOe8KSsWpiqwFytgtSmI
+         RKgMg/lwd2Kt6wA/iJCv2MpFfCfPSpT0+lFqwNQXzgbzbClH0THGj835JH/qX4046U52
+         azKw==;
+        dara=google.com
+ARC-Authentication-Results: i=2; mx.google.com;
+       dkim=pass header.i=@oracle.com header.s=corp-2023-11-20 header.b=hOQlHc5t;
+       dkim=pass header.i=@oracle.onmicrosoft.com header.s=selector2-oracle-onmicrosoft-com header.b=gvhbnSuX;
+       arc=pass (i=1 spf=pass spfdomain=oracle.com dkim=pass dkdomain=oracle.com dmarc=pass fromdomain=oracle.com);
+       spf=pass (google.com: domain of kazumi.momoki@oracle.com designates 205.220.165.32 as permitted sender) smtp.mailfrom=kazumi.momoki@oracle.com;
+       dmarc=pass (p=REJECT sp=REJECT dis=NONE) header.from=oracle.com
+Return-Path: <kazumi.momoki@oracle.com>
+Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com. [205.220.165.32])
+        by mx.google.com with ESMTPS id 8926c6da1cb9f-4b7b5fe8559si5928767173.192.2024.06.12.05.08.28
+        for <ben.webb340@gmail.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 12 Jun 2024 05:08:28 -0700 (PDT)
+Received-SPF: pass (google.com: domain of kazumi.momoki@oracle.com designates 205.220.165.32 as permitted sender) client-ip=205.220.165.32;
+Authentication-Results: mx.google.com;
+       dkim=pass header.i=@oracle.com header.s=corp-2023-11-20 header.b=hOQlHc5t;
+       dkim=pass header.i=@oracle.onmicrosoft.com header.s=selector2-oracle-onmicrosoft-com header.b=gvhbnSuX;
+       arc=pass (i=1 spf=pass spfdomain=oracle.com dkim=pass dkdomain=oracle.com dmarc=pass fromdomain=oracle.com);
+       spf=pass (google.com: domain of kazumi.momoki@oracle.com designates 205.220.165.32 as permitted sender) smtp.mailfrom=kazumi.momoki@oracle.com;
+       dmarc=pass (p=REJECT sp=REJECT dis=NONE) header.from=oracle.com
+Received: from pps.filterd (m0246627.ppops.net [127.0.0.1]) by mx0b-00069f02.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 45C7BRLY029227 for <ben.webb340@gmail.com>; Wed, 12 Jun 2024 12:08:28 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h= from:to:subject:date:message-id:content-type:mime-version; s= corp-2023-11-20; bh=aDTFUryeubV+AaZdtcdPbM31jxyi80uFHLmvOYcDPCM=; b= hOQlHc5tGjIImZBfaGbuHh84V9tMJQ5o7hGVuScVkm4eeixaMLHdvH89o7rf1jSx pA8FIgT+1opGgBIp+LKcfRIAvmpN3ceeLCQEomvn0Ws0bDYEAYlLMGUzqHmxaAks v/Rjq7P1MK0xpHJjR9LbVTekhkolKDMc0qOgit4h7nDKCua9CTTygnq4BpUECUPl 1IMF17utB7iiqLW34umeKqcSG4bh89nbdBbIo3WoZwv4cXg4zxTRG9TDc4Q/BBcN h+2BqlMRXBtwc+hQYABL3P20SRxC8cST/uulhxQqKaQiUfc/ofzCHV+j8yp6qlge D9ibmN2NrgQkDa3A1CoWOg==
+Received: from phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com (phxpaimrmta02.appoci.oracle.com [147.154.114.232]) by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3ymh7dq17d-1 (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK) for <ben.webb340@gmail.com>; Wed, 12 Jun 2024 12:08:27 +0000 (GMT)
+Received: from pps.filterd (phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1]) by phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com (8.17.1.19/8.17.1.19) with ESMTP id 45CBrM7K014320 for <ben.webb340@gmail.com>; Wed, 12 Jun 2024 12:08:27 GMT
+Received: from nam11-bn8-obe.outbound.protection.outlook.com (mail-bn8nam11lp2174.outbound.protection.outlook.com [104.47.58.174]) by phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTPS id 3yncevb35g-1 (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK) for <ben.webb340@gmail.com>; Wed, 12 Jun 2024 12:08:27 +0000
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none; b=nsSFb6SVsuy3iR02jB6YbCAbjSsOV4Wu3qd8OsORJ13X3kRWUIGy7bjBl5os8iPRDBPlhugdEJv9OG0GjJem0i2ZTgiyr2kTBQJJQBueodS7/B/x3rAUuzI9ZHZho+3UtwnA0nG+c4cYUpEOUtipHxSdbdcXPX1PHloZCjPYnfH+ahMIROqVbJaS35MGBoQitC4+fO4yQuImEEuvi7skaP6JXSAJyuarkOzeB0c7HmQslSxTlSx3GDMZSFDGBIzcEMtABVTyQ/MGwqRBxPHAnd0aNOVzIG6/Wz+uYxl1zTb3RDd9wLOvHr3UzR3MVdGDuGG7q5riaTzKNaUu9Mlr6w==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; s=arcselector9901; h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1; bh=aDTFUryeubV+AaZdtcdPbM31jxyi80uFHLmvOYcDPCM=; b=coX1so19+WcGBTWqF3YpHcgpiBUakgYl9kUVFz5O7oG4sDt5HRUD8Ntk5TH8HV5iOeXftEB9DxVy0kD4cGjaSqtcFCpU9+PvkQLYGGo2gUkuBocaBGzGMhgG7SGmvOlKnhw6A5iDm7sMnH04rUqMe+NcXi/p2gwkKWEo7bQmM7rlx8n5KmuQtH1sgA9yb2tJFetsxjHFTlKQuN0qxOCQLTk4VtQm7IqJXGbxIbn85dsE+lI8Vg5gQRWzEg6ws/9VWgCWLrHq7oADceSm8RUhaftAnRVl+aDltcUS8+BT1pqb1dIRh88sf1GNMBEWZfVsIpqDiVzsTDKIx4llvcPbUA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com; dkim=pass header.d=oracle.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com; h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck; bh=aDTFUryeubV+AaZdtcdPbM31jxyi80uFHLmvOYcDPCM=; b=gvhbnSuX5kOFUBY6QHTsxRwHdYaMR4fs2zJ5fdXrJK7FzZYyqj6J9A1m2nUMLx6wJkNKz4JZWNRa5jUkBVa6IYkioRGCNCilkq6drA4Q2goR3iNb6zLMrhbao6uNbKGDY/Rxns3shePGBQZWWgfHZD/GZ6J/dwdU8yNe2lJK4pk=
+Received: from BYAPR10MB3318.namprd10.prod.outlook.com (2603:10b6:a03:15d::25) by IA0PR10MB6868.namprd10.prod.outlook.com (2603:10b6:208:432::9) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7633.36; Wed, 12 Jun 2024 12:08:22 +0000
+Received: from BYAPR10MB3318.namprd10.prod.outlook.com ([fe80::7e5e:d1b6:2530:263]) by BYAPR10MB3318.namprd10.prod.outlook.com ([fe80::7e5e:d1b6:2530:263%3]) with mapi id 15.20.7633.036; Wed, 12 Jun 2024 12:08:22 +0000
+From: Kazumi Momoki <kazumi.momoki@oracle.com>
+To: "ben.webb340@gmail.com" <ben.webb340@gmail.com>
+Subject: Test
+Thread-Topic: Test
+Thread-Index: AQHavMEgi9GXD7pI6k2inrfgRzA9/A==
+Date: Wed, 12 Jun 2024 12:08:22 +0000
+Message-ID: <BYAPR10MB331827650BC8E305830C42E68EC02@BYAPR10MB3318.namprd10.prod.outlook.com>
+Accept-Language: ja-JP, en-US
+Content-Language: ja-JP
+X-MS-Has-Attach: yes
+X-MS-TNEF-Correlator: 
+msip_labels: 
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: BYAPR10MB3318:EE_|IA0PR10MB6868:EE_
+x-ms-office365-filtering-correlation-id: efe701a3-f6b1-4712-f9e1-08dc8ad85ae6
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;ARA:13230032|366008|376006|1800799016|38070700010;
+x-microsoft-antispam-message-info: GOvLoSrUz48flKZwixeqyVloY2HMvtqzbJfAx90v3oAjbeJMAg9YTCrumKV5V7wC9vKRlHPVKojSKyaTvytve/yZB1WbRpvpgZygTQmKFtbuEBQEVs3seYLZ6aZkBRctpZY9xXWg1yInu+hQEP4XLOeULPkQYypLAvz/n/A4ftiGaPRB3utCPv7/W8umzrvhIXOGzcoVVr0Mqj32fVXsel713FPqOaDAmoD+SkDWkstry0lNMDamUeDSTvxZwTdhZ8LarvUYFtRECwLlYBCBwDm67B+9Rh6yuY9GwVi3xI+YfO5KSiFPrXBSS1TY6kWl9Ae890BCW546g/HJWP+apBGXi2crSBzuQhpH7LFNsAW1Lq6yExsAmkLbV0Ej024iUT6K/8F4E9BbT41BMlBOabCsG1lbVWpvOXDm9VHwgk8oliUiwpCPc0E+Q+Uq5xn5UI8AafFFDufd4Mk/7zOGuB5GG8cUl6LRk4MObscm0aqx6dQ9x8rXoInWncHGssbrqVlq+Ns/YeHMPDoKyLwOq84nbTjp5/ys1BxRdUQaYyvZ84AFO5YX9y4t7ps8WV+G+FfoLzD7fShPIRLYmC7uWsXs3AgCrUmDQSGaqLAA+uYCbvIrP6VHIq7VbyEjRIQ6uBE3nAwCOsQa/ubeDDQFQUMABl3zmxFyLC+ZgH5I8QTUhzB+YK0MhO6yk+iydt72izzCZjEj5TVPxXvlyP5Ivkv5c81qfOMEhMYGceIhvxewJPmNETmgRYIw3DKTIkVseTaykhye6Om7PAdFmXgsnW/9kf186Lw3ehgKlmq2b7uPdherzs/g7AhUh1K1r4TvXsccEINcrFlUkL4IF/pavqsF4vCF7OpTXALqAEKgwYKJSJ9aXGkLJXlcrNhJAHrcs7A3e9L0qBPsXgzAC1zrRN6QL4R6pGlnKgxPut9ufeo77kz3RFwBG8rzQurKgf+ncT2NcvdM2IqVR5Ks63Gt8epUIHMM4Mt/9Q6ItBozJE0tKgdM9ZRRYEC2ZaMJcLxsV3yFkajJ3iHXG1GXBsU4LrleKROTNOzGB/5MCGkkvrDTdWGRZxmQxx87lISA4A2fuNtQXhGmfK79I3ng8vP3uMBbckJcEedvDMDM+i2ggLgpsL7tu/ly/S/fYq8NchzZ5skkJoLcpVaYv9rmGqPEhKFMsh1DYxaUAffDEn2vzR9wepMHEA2EVK726ctONR+s6Qnd7DdFD31i5kA/uSOKfh0tjGiKAHkpEWyLS760XYfWWM8vIP+VL/dHkG0nzgQGo4oD3hu3qhPsn8+ULXK8D+rcDMkf4rTGr4o9vHqyFkgyNOB9JBc8ulxFsCLdfaLv
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:ja;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BYAPR10MB3318.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230032)(366008)(376006)(1800799016)(38070700010);DIR:OUT;SFP:1101;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: zKhVffvrBSSzR3zq0AQ/sofDIelIhWL42+1I44trls3Ha1vStbx/uBnpOcGfh9VOOsGeMU0wJ6JUSPexjfRJJs+Oj6f1J5gqsIEcnT8ep5Tx+NPAS+GhE0KSJ1ci9jZ/BC1ukpoI3KqNbNekI+2L3r7YBSItO9OQeRMYFvzC17PXMmjoOSnaJUv4ekmLO/uU6X9FnTWbl58LxIFYgdXZrCuQB5wMqmzwSCavrGC7jXWyDwjtqWCGgeMAR8Cf100l5/S3CbCyuiQ0bthlltpamcyYhRyEfTH8poA6ddip6PQCyvLIziG2DjwtL1h72qKQSaSldVPj4MHW4yUp04fnJnM1bDyzaCTm+GGKci0B45S+jWnUvpZk6sgyMeX2QR1AmVqmC8VRvWBzPpGXyVeRgPN77vUMgIb+VCQJfFpk26eFnXEFxTu+mmCMf8jXSdcVs7yoIVBxnPqxn1GXtim+bIheEX9BGwO0Mc6D1iLt0BJUGHaWf3Z7mdTF7CSEjtcgvZRc4uCXOVn89QxNIMdiosaIUj4hAnrqxWIDQvefqUKJBDFmY5HZK8d84I3Oc45D5xY5lONIeOOuP1A6hCI62WqXI0hte7gM6BLhF7XDvb4LQZSmRgqlalNf4ZurZqV2fchSJoUCrc4oq9sJmoQr93EXr8gl7Nc+Mgp1XneTm1jHjE2sYUu2DzCF5iZKE61L+hK2IPhi5aG5jeAtDw5b59+CxzUm4he/EgYw9Ik5RUxXw7NeiLGBLQoyT8zK8Isyxjhg1AXklUkZSowT7NZia8pnX45aaX0Zt1pMzUQjskcNIWL5CmSwMpLUuwVdB5O+xoMFv0Wu9cOR0uliqTMnnkLQb0Zc++6CrAhXKgkrCI/w/awrpfhfD6i0SMECYRyAHjWAMK2GZpjsc8ilV9UqKETEAbwSTzBc3K04oGrUUMAJoq0bnyhm9aqnry13UdOxXhBLiKVhoJZwD26/7zF0MeRzodHM3DLreatRux1mRioEf/kjxZdl+W8Ci7EeTT8vFUOhL4Zauxfo2+a36Y0ELhVSZZk2FNJpkaOObLQiuypKkPWYkjBqXuM+VfJQxmsgBwMY45QZeKZqRAsNptCpp5oNJkLCRpbJfirzWug0c1mwNjAom4nv+FNiJb0iS08kT+Z2KxBokWrFRAzGQqQ4et6cY0Qs3D5Ga+Prd9yE5TEKneWFQKo3K5EK4WE/O5C8s3pFjtaqN+ZTBqzGM5rQGKuYr+9Le4d+3pIRTfFf3AF/hKVBL0UO8w4vRtlk4mxAlSLBaN2ewdYrW+wPgLY7WkbWfC4tOnpyrMnV59FP2m9Ac5ybJpBHpOU1kwvnFGNjPUseMs6F9PneSHgniKp5rJhVXKooTi7NBI+5jNXJunX1iEwgO5ybIDIu0PktcgpZOctq16/6l3eHXlC5FGJvggP1i2auyl4cXuCA+pJcCTkS3ooBkw7lC65inN9zWw73327f51d3/VaHJUUHic6awmG1l6VVXx1UDjzYsFhIyFHFWZe/RcgNIhRw/j2mS7me1PeKlhoPPt/r3UxBcSoTK9cV2hw/A+rkJDAQllm1VW5P0Coey8y08APgzzMcUw/y
+Content-Type: multipart/related; boundary="_004_BYAPR10MB331827650BC8E305830C42E68EC02BYAPR10MB3318namp_"; type="multipart/alternative"
+MIME-Version: 1.0
+X-MS-Exchange-AntiSpam-ExternalHop-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0: 3J5LuAjP2RjDeV3pXNFDNW+o9OgYAzDSK8sFOZ7DE8+5jFObfdNNrYAI/oappU3dlqoIGzjA9ebC5KY6/D0q6gRwXFM7OeyMeviH+sxu/mT33n5hUBH2ny6bJyci4jbzRD26GtFFK/aJ9vX0LdaEV6x20cF3951DPmjCK+OKs1zpiEqFa4L9AOEKYHy/0Ow5vPBL16PwlZ80H0oW+QZayMaOlVz66svcghIsYw4/2o+6vOTfMLABoRvcpwZ+3O0nT8nwTivATwgr+e6uxfyGjru5+nepj3D8QmRYLxYZoWYhVC2fHt/84RGYZ61dyRjuIvZ5FJVsELt+QJsC51YPIvn9OFppF9ksyfRKN40Ei7YGbUHcfO2532EelAT7wM2qoEV8kqbegbtEsUFHhmAg0BGzSGUyHuMiYNZ0xBvgFy8I7B73lwczizt/Aqc7ZjAyvijjDFb0S2gW1BgZ+EdxgG9kYoC91g9Ff2O1oKvPS98AJTwpCu8glSmFRRAK2DKKLIRSw1DGRXOterazjP219Si8sFMn8ij3r9wv35aT1AhjD7d0HVw+VOcde3XSWBsOiUwFHVglbNY+MllY1kx73GCOmudVKuV32UV6jP2DhAQ=
+X-OriginatorOrg: oracle.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: BYAPR10MB3318.namprd10.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: efe701a3-f6b1-4712-f9e1-08dc8ad85ae6
+X-MS-Exchange-CrossTenant-originalarrivaltime: 12 Jun 2024 12:08:22.1719 (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: dhXOFODVq38ToVS2/HORzEuP6tqW7smnugGfo/RyADIg4xMfN0Oy1JM8mbT4XAr+sGtoey1XQjZgAhY6mYrVbIaov8bT3vx+ZSa8PSCWOS4=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: IA0PR10MB6868
+X-Proofpoint-Virus-Version: vendor=baseguard engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16 definitions=2024-06-12_06,2024-06-12_02,2024-05-17_01
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 adultscore=0 suspectscore=0 phishscore=0 bulkscore=0 malwarescore=0 spamscore=0 mlxscore=0 mlxlogscore=924 classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2405010000 definitions=main-2406120089
+X-Proofpoint-GUID: i1IIFK2s7olw08aRicv1KbMMSMDpMI2N
+X-Proofpoint-ORIG-GUID: i1IIFK2s7olw08aRicv1KbMMSMDpMI2N
+
+--_004_BYAPR10MB331827650BC8E305830C42E68EC02BYAPR10MB3318namp_
+Content-Type: multipart/alternative; boundary="_000_BYAPR10MB331827650BC8E305830C42E68EC02BYAPR10MB3318namp_"
+
+--_000_BYAPR10MB331827650BC8E305830C42E68EC02BYAPR10MB3318namp_
+Content-Type: text/plain; charset="iso-2022-jp"
+Content-Transfer-Encoding: quoted-printable
+
+This is the test email.
+
+Thanks,
+Kazumi
+
+[Oracle]<http://www.oracle.com>
+Kazumi Momoki, Associate Cloud Engineer
+Mobile: +817042941350
+Center of Excellence, Database Solution
+Oracle Aoyama Center
+2-5-8 Kita-Aoyama, Minato-ku, Tokyo, TOKYO 107-0061, JP
+
+
+
+--_000_BYAPR10MB331827650BC8E305830C42E68EC02BYAPR10MB3318namp_
+Content-Type: text/html; charset="iso-2022-jp"
+Content-Transfer-Encoding: quoted-printable
+
+<html>
+<head>
+<meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Diso-2022-=
+jp">
+<style type=3D"text/css" style=3D"display:none;"> P {margin-top:0;margin-bo=
+ttom:0;} </style>
+</head>
+<body dir=3D"ltr">
+<div class=3D"elementToProof" style=3D"font-family: Meiryo, sans-serif; fon=
+t-size: 13.5pt; color: black;">
+This is the test email.&nbsp;</div>
+<div class=3D"elementToProof" style=3D"font-family: Meiryo, sans-serif; fon=
+t-size: 13.5pt; color: black;">
+<br>
+</div>
+<div class=3D"elementToProof" style=3D"font-family: Meiryo, sans-serif; fon=
+t-size: 13.5pt; color: black;">
+Thanks,</div>
+<div class=3D"elementToProof" style=3D"font-family: Aptos, Aptos_EmbeddedFo=
+nt, Aptos_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; c=
+olor: rgb(0, 0, 0);">
+<span style=3D"font-family: Meiryo, sans-serif; font-size: 13.5pt; color: b=
+lack;">Kazumi<br>
+<br>
+</span><span style=3D"font-family: Meiryo, sans-serif; font-size: 13.5pt; c=
+olor: blue;"><a href=3D"http://www.oracle.com" target=3D"_blank" style=3D"c=
+olor: blue; margin-top: 0px; margin-bottom: 0px; text-align: left;"><img al=
+t=3D"Oracle" width=3D"114" height=3D"26" style=3D"width: 114px; height: 26p=
+x; margin-top: 0px; margin-bottom: 0px;" data-outlook-trace=3D"F:1|T:1" src=
+=3D"cid:15194f9a-261b-4e97-ab24-168daf24bb1a"></a></span><span style=3D"fon=
+t-family: Meiryo, sans-serif; font-size: 13.5pt; color: black;"><br>
+</span><span style=3D"font-family: &quot;Oracle Sans&quot;, sans-serif; fon=
+t-size: 10pt;">Kazumi Momoki, Associate Cloud Engineer<br>
+Mobile: +817042941350<br>
+</span>Center of Excellence, Database Solution<span style=3D"font-family: &=
+quot;Oracle Sans&quot;, sans-serif; font-size: 10pt;"><br>
+</span>Oracle Aoyama Center<br>
+2-5-8 Kita-Aoyama, Minato-ku, Tokyo, TOKYO 107-0061, JP</div>
+<div id=3D"Signature" style=3D"color: inherit;">
+<p>&nbsp;</p>
+</div>
+</body>
+</html>
+
+--_000_BYAPR10MB331827650BC8E305830C42E68EC02BYAPR10MB3318namp_--
+--_004_BYAPR10MB331827650BC8E305830C42E68EC02BYAPR10MB3318namp_
+Content-Type: image/png; name="Outlook-Oracle.png"
+Content-Description: Outlook-Oracle.png
+Content-Disposition: inline; filename="Outlook-Oracle.png"; size=2509; creation-date="Wed, 12 Jun 2024 12:08:22 GMT"; modification-date="Wed, 12 Jun 2024 12:08:22 GMT"
+Content-ID: <15194f9a-261b-4e97-ab24-168daf24bb1a>
+Content-Transfer-Encoding: base64
+
+
+--_004_BYAPR10MB331827650BC8E305830C42E68EC02BYAPR10MB3318namp_--
+<<TESTCASE>>
+This is the test email.
+
+Thanks,
+Kazumi
+
+[Oracle]<http://www.oracle.com>
+Kazumi Momoki, Associate Cloud Engineer
+Mobile: +817042941350
+Center of Excellence, Database Solution
+Oracle Aoyama Center
+2-5-8 Kita-Aoyama, Minato-ku, Tokyo, TOKYO 107-0061, JP
+<<TESTCASE>>
+From: Kazumi Momoki <kazumi.momoki@oracle.com>
+///To: "ben.webb340@gmail.com" <ben.webb340@gmail.com>
+///Subject: Test
+///Thread-Topic: Test
+///Thread-Index: AQHavMEgi9GXD7pI6k2inrfgRzA9/A==
+///Date: Wed, 12 Jun 2024 12:08:22 +0000
+///Message-ID: <BYAPR10MB331827650BC8E305830C42E68EC02@BYAPR10MB3318.namprd10.prod.outlook.com>
+///Accept-Language: ja-JP, en-US
+///Content-Language: ja-JP
+///Return-Path: <kazumi.momoki@oracle.com>

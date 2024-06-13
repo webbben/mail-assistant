@@ -5,6 +5,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/webbben/mail-assistant/internal/config"
 	t "github.com/webbben/mail-assistant/internal/types"
 )
 
@@ -34,7 +35,7 @@ func convInternalDateToTime(internalDate int64) time.Time {
 	return time.Unix(seconds, nanoseconds)
 }
 
-func isEmailTooOld(email t.Email, config t.Config) bool {
+func isEmailTooOld(email t.Email, config config.Config) bool {
 	if config.LookbackDays == 0 {
 		return false
 	}

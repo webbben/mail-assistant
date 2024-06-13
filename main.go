@@ -10,25 +10,25 @@ import (
 
 	"github.com/ollama/ollama/api"
 	auth "github.com/webbben/mail-assistant/internal/auth"
+	"github.com/webbben/mail-assistant/internal/config"
 	"github.com/webbben/mail-assistant/internal/debug"
 	emailcache "github.com/webbben/mail-assistant/internal/email_cache"
 	"github.com/webbben/mail-assistant/internal/gmail"
 	"github.com/webbben/mail-assistant/internal/llama"
 	"github.com/webbben/mail-assistant/internal/openai"
 	"github.com/webbben/mail-assistant/internal/personality"
-	t "github.com/webbben/mail-assistant/internal/types"
 	"github.com/webbben/mail-assistant/internal/util"
 )
 
-func loadConfig() (t.Config, error) {
+func loadConfig() (config.Config, error) {
 	bytes, err := os.ReadFile("config.json")
 	if err != nil {
-		return t.Config{}, err
+		return config.Config{}, err
 	}
-	var c t.Config
+	var c config.Config
 	err = json.Unmarshal(bytes, &c)
 	if err != nil {
-		return t.Config{}, err
+		return config.Config{}, err
 	}
 	return c, nil
 }
@@ -98,7 +98,7 @@ func main() {
 
 		if len(emails) > 0 {
 			fmt.Printf("%s enters the room, approaching to convey a message for you.\n", p.Name)
-			util.SomeoneTalks(p.Name, p.Phrases.Get("greeting"), util.Hi_blue)
+			util.SomeoneTalks(p.Name, p.GenPhrase(ollamaClient, "greeting"), util.Hi_blue)
 			fmt.Printf("(To dismiss %s at any time, enter 'q' in the prompt)\n\n", p.Name)
 			for _, email := range emails {
 				emailReply := GetResponseInteractive(email.Body, emailReplyPrompt, ollamaClient, appConfig, p)
@@ -121,7 +121,7 @@ func main() {
 				}
 			}
 		}
-		util.SomeoneTalks(p.Name, p.Phrases.Get("dismiss"), util.Hi_blue)
+		util.SomeoneTalks(p.Name, p.GenPhrase(ollamaClient, "dismiss"), util.Hi_blue)
 
 		emailcache.RemoveOldEntries(appConfig.LookbackDays)
 		if err := emailcache.WriteCacheToDisk(); err != nil {
@@ -131,7 +131,7 @@ func main() {
 	}
 }
 
-func GetResponseInteractive(message string, basePrompt string, ollamaClient *api.Client, appConfig t.Config, p *personality.Personality) string {
+func GetResponseInteractive(message string, basePrompt string, ollamaClient *api.Client, appConfig config.Config, p *personality.Personality) string {
 	prompt := openai.LoadPrompt(p.Prompts.EmailWorkflow, p.Name, appConfig.UserName, message)
 	prompt = p.FormatPrompt(appConfig.UserName, basePrompt, message)
 	if prompt == "" {
@@ -172,8 +172,8 @@ func GetResponseInteractive(message string, basePrompt string, ollamaClient *api
 		}
 		content := messages[len(messages)-1].Content
 
-		if strings.TrimSpace(content) == "<<<IGNORE>>>" {
-			util.SomeoneTalks(p.Name, p.Phrases.Get("ignore"), util.Hi_blue)
+		if strings.Contains(content, "<<<IGNORE>>>") {
+			util.SomeoneTalks(p.Name, p.GenPhrase(ollamaClient, "ignore"), util.Hi_blue)
 			return "<<SKIP>>"
 		}
 		util.SomeoneTalks(p.Name, content, util.Hi_blue)

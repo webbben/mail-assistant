@@ -1,0 +1,30 @@
+Return-Path: <ben.webb340@gmail.com>
+Received: from smtpclient.apple (58x157x55x63.ap58.ftth.ucom.ne.jp. [58.157.55.63])
+		by smtp.gmail.com with ESMTPSA id d9443c01a7336-1f71121a52csm50852905ad.199.2024.06.11.20.11.56
+		for <ben.webb340@gmail.com>
+		(version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+		Tue, 11 Jun 2024 20:11:57 -0700 (PDT)
+From: Ben Webb <ben.webb340@gmail.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Mime-Version: 1.0 (Mac OS X Mail 16.0 \(3774.600.62\))
+Subject: Test
+Message-Id: <C3507492-C870-42C7-8B8E-4AE9EED8092F@gmail.com>
+Date: Wed, 12 Jun 2024 12:11:44 +0900
+To: Ben Webb <ben.webb340@gmail.com>
+X-Mailer: Apple Mail (2.3774.600.62)
+
+This is a test email.
+<<TESTCASE>>
+This is a test email.
+<<TESTCASE>>
+Return-Path: <ben.webb340@gmail.com>
+///From: Ben Webb <ben.webb340@gmail.com>
+///Content-Type: text/plain; charset=us-ascii
+///Content-Transfer-Encoding: 7bit
+///Mime-Version: 1.0 (Mac OS X Mail 16.0 \(3774.600.62\))
+///Subject: Test
+///Message-Id: <C3507492-C870-42C7-8B8E-4AE9EED8092F@gmail.com>
+///Date: Wed, 12 Jun 2024 12:11:44 +0900
+///To: Ben Webb <ben.webb340@gmail.com>
+///X-Mailer: Apple Mail (2.3774.600.62)

@@ -79,7 +79,7 @@ func GenerateCompletion(client *api.Client, systemPrompt string, prompt string) 
 
 func IsEmailSpam(client *api.Client, email string) bool {
 	prompt := fmt.Sprintf("Email:\n\n%s", email)
-	systemPrompt := "You are an assistant that judges if emails are from real people, or if they are spam, automated, newsletters, etc. Given an email, say \"<<<SPAM>>>\" if you think its spam, automated, a newsletter etc, or \"<<<PASS>>>\" if it looks like a normal email from a real person."
+	systemPrompt := "You are an assistant that categorizes the content of emails. If an email looks to be some kind of automated newsletter or advertisement from a company, return \"<<<SPAM>>>\". Otherwise, return \"<<<PASS>>>\"."
 	out, err := GenerateCompletion(client, systemPrompt, prompt)
 	if err != nil {
 		log.Println("failed to do spam detection completion:", err)

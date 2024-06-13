@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/ollama/ollama/api"
+	"github.com/webbben/mail-assistant/internal/config"
 	"github.com/webbben/mail-assistant/internal/debug"
 	emailcache "github.com/webbben/mail-assistant/internal/email_cache"
 	"github.com/webbben/mail-assistant/internal/llama"
@@ -22,26 +23,38 @@ const (
 	OLD      = "OLD"
 )
 
-func GetEmails(srv *gmail.Service, ollamaClient *api.Client, config t.Config) []t.Email {
+func ListMessages(srv *gmail.Service, gmailAddr string) ([]*gmail.Message, error) {
+	r, err := srv.Users.Messages.List(gmailAddr).Do()
+	if err != nil {
+		return nil, err
+	}
+	return r.Messages, nil
+}
+
+func GetMessage(srv *gmail.Service, gmailAddr string, messageID string) (*gmail.Message, error) {
+	return srv.Users.Messages.Get(gmailAddr, messageID).Do()
+}
+
+func GetEmails(srv *gmail.Service, ollamaClient *api.Client, config config.Config) []t.Email {
 	debug.Println("getting emails...")
 	emails := []t.Email{}
-	r, err := srv.Users.Messages.List(config.GmailAddr).Do()
+	list, err := ListMessages(srv, config.GmailAddr)
 	if err != nil {
 		log.Println("failed to list emails:", err)
 		return emails
 	}
-	if len(r.Messages) == 0 {
+	if len(list) == 0 {
 		debug.Println("No emails found.")
 		return emails
 	}
-	for _, msg := range r.Messages {
+	for _, msg := range list {
 		if len(emails) >= config.EmailBatchLimit {
 			break
 		}
 		if _, isCached := emailcache.IsCached(msg.Id); isCached {
 			continue
 		}
-		email, err := processEmail(srv, msg.Id, config.GmailAddr)
+		email, err := ProcessEmail(srv, msg.Id, config.GmailAddr)
 		if err != nil {
 			debug.Println("failed to process email:", err)
 			continue
@@ -67,7 +80,7 @@ func isJunk(email t.Email, ollamaClient *api.Client) (bool, string) {
 		debug.Println("empty email:", email.From)
 		return true, BAD_FORM
 	}
-	if len(email.Body) > 1500 {
+	if len(email.Body) > 3000 {
 		debug.Println("email too long:", len(email.Body), email.From)
 		return true, BAD_FORM
 	}
@@ -82,8 +95,8 @@ func isJunk(email t.Email, ollamaClient *api.Client) (bool, string) {
 	return false, ""
 }
 
-func processEmail(srv *gmail.Service, messageID string, emailAddr string) (t.Email, error) {
-	msg, err := srv.Users.Messages.Get(emailAddr, messageID).Do()
+func ProcessEmail(srv *gmail.Service, messageID string, emailAddr string) (t.Email, error) {
+	msg, err := GetMessage(srv, emailAddr, messageID)
 	if err != nil {
 		return t.Email{}, err
 	}

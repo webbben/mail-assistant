@@ -1,0 +1,273 @@
+Delivered-To: ben.webb340@gmail.com
+Received: by 2002:a05:651c:2cb:b0:2eb:e1a4:7bd3 with SMTP id f11csp618239ljo;
+        Mon, 10 Jun 2024 07:35:36 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFaCzXm/V5CM+W3hThvoM4hjJwfshDdMzyhNkPd/QgidTI2n7Ey6Y3wvPy6YjNWpZTw8rkn
+X-Received: by 2002:a92:c105:0:b0:375:96b6:2497 with SMTP id e9e14a558f8ab-37596b627eamr32243035ab.14.1718030135950;
+        Mon, 10 Jun 2024 07:35:35 -0700 (PDT)
+ARC-Seal: i=2; a=rsa-sha256; t=1718030135; cv=pass;
+        d=google.com; s=arc-20160816;
+        b=Lietfceqo1J1SmQpIFUBqu8FHihooJPm2g/2WEcubUW4cZfJAva83iOE/t5WciPQTB
+         qNZz8I0gVEyjY/LHxsia5No/ztABKgODHwOjZq0bGSw9KcQG2GrrLuKGizXSqQFjlfCb
+         uOXJcCzQ0VSq1K2zD956Baa6sy02PB7kbdgcYK4EgQdcDJcibPZOqcm9cKMyC+7HV+te
+         QinMlmdpwI6FeCdB75TDRdg88Q4K+0ge4e6Dx6BKgPkOoRDen8lbVFP0iIoGqH7qKJ6V
+         1hTYctapnZYJjmKoiq8MDLK9WGXmuyl9VcVZTnZqQAHAXNW+cUmVmWcr7vN0EZXiPuSf
+         rGmQ==
+ARC-Message-Signature: i=2; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=mime-version:content-language:accept-language:message-id:date
+         :thread-index:thread-topic:subject:to:from:dkim-signature;
+        bh=J2dCKPp9nJh8QuGFk3Z1emetfoiVxXA2NE7HcQXhIRQ=;
+        fh=Ac7cEg0ClBnJVWlt+swPu8M6mDiwOtRnlrrQnqgrNVg=;
+        b=zmrnTOL7JC7OrqyGQ0+YiuhWsye9xGFCpaeOUOJCoRKw6OnEdHLUxpjPe0Vgj8ynst
+         YRVzU7XhyCjfxHgDXZim2tFY/Hh9Hi7Nxe+tY1yhJcaKM0WxvozW7eEYOWQbTEWv3Sa+
+         ZG9N0qjxAL2oHAjn2Pd2odfvqBc1ZkzPCLuhe8G9SSk0KgTN8VZAGvRTPpa6P5nh9s7x
+         +tT1bPV9IuSCW+OYJGI5YEnYAkAk/YZ5Elxi1tauBfc7f7lCPEhE4uoHLnUlugvb4Fu/
+         pueeMbl+9DN7D0DLqk9c/wCZlB17GUGb6Yj1JVnFWZ+aWUkiXG9CIdzPS0tzBBUi7IGP
+         BoSg==;
+        dara=google.com
+ARC-Authentication-Results: i=2; mx.google.com;
+       dkim=pass header.i=@cookmedical.com header.s=POD110218 header.b=yJlZ7eVJ;
+       arc=pass (i=1 spf=pass spfdomain=cookmedical.com dkim=pass dkdomain=cookmedical.com dmarc=pass fromdomain=cookmedical.com);
+       spf=pass (google.com: domain of susan.white@cookmedical.com designates 148.163.156.45 as permitted sender) smtp.mailfrom=Susan.White@cookmedical.com;
+       dmarc=pass (p=REJECT sp=REJECT dis=NONE) header.from=cookmedical.com
+Return-Path: <Susan.White@cookmedical.com>
+Received: from mx0b-001b8001.pphosted.com (mx0a-001b8001.pphosted.com. [148.163.156.45])
+        by mx.google.com with ESMTPS id e9e14a558f8ab-375aa88062bsi9247465ab.51.2024.06.10.07.35.35
+        for <ben.webb340@gmail.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 10 Jun 2024 07:35:35 -0700 (PDT)
+Received-SPF: pass (google.com: domain of susan.white@cookmedical.com designates 148.163.156.45 as permitted sender) client-ip=148.163.156.45;
+Authentication-Results: mx.google.com;
+       dkim=pass header.i=@cookmedical.com header.s=POD110218 header.b=yJlZ7eVJ;
+       arc=pass (i=1 spf=pass spfdomain=cookmedical.com dkim=pass dkdomain=cookmedical.com dmarc=pass fromdomain=cookmedical.com);
+       spf=pass (google.com: domain of susan.white@cookmedical.com designates 148.163.156.45 as permitted sender) smtp.mailfrom=Susan.White@cookmedical.com;
+       dmarc=pass (p=REJECT sp=REJECT dis=NONE) header.from=cookmedical.com
+Received: from pps.filterd (m0078760.ppops.net [127.0.0.1]) by mx0a-001b8001.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 45A1Pu6Q004217 for <ben.webb340@gmail.com>; Mon, 10 Jun 2024 10:35:35 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=cookmedical.com;
+	 h=content-type:date:from:message-id:mime-version:subject:to; s= POD110218; bh=J2dCKPp9nJh8QuGFk3Z1emetfoiVxXA2NE7HcQXhIRQ=; b=yJ lZ7eVJQ8XAusEaegNTcEysWW+jKzrXF9Jjgy7NXsvQwYroSIXwr0iydMc6TTp1rW bvszqcPe/4DKzy6ZoxHd+irHmL6/YD3TANUi9takusWXDcAi92xzdaVeBcYnACBA XkV9q/g+QdURLyRXYbG7ZV9dJgTK2sGZnQOBsvj646WXx4M84jQUIBQaM563Wq4l qEAEjIMbtyDFBkT1si3cPlHUyb9xjy3HgmcXksfEwGzrLacrVlwAghyKpHQXKF9X dzo5Ila6WXdTQqm5VHeH2knL1e8jlq2oXDNO5jdyw7SsiYpAjWA1Mz0uWWOjT7gB J4Uyi7WUX7rgNbGJapHg==
+Received: from nam04-bn8-obe.outbound.protection.outlook.com (mail-bn8nam04lp2043.outbound.protection.outlook.com [104.47.74.43]) by mx0a-001b8001.pphosted.com (PPS) with ESMTPS id 3ymhmjvwtv-1 (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT) for <ben.webb340@gmail.com>; Mon, 10 Jun 2024 10:35:34 -0400 (EDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none; b=BZF5AEOrkE5d8B7kpLZDdvljvpasJHxXRJGCrUKLu0lEMx3fp6xZP71Sgjw8sTSj+n69GvmOp9UdEWPLN4i1ArsRmDqxbbMNUsIU89igCh7YVogKNkfOm1jIYDH2utmRDS/CKGvdOiu6RV9NGuvI1idIJ+vGBNxaqkFSTr0bMa/fhkOVjhbPXl4JeQe+6G5a3C01THBnjk7jUhx5QeOsu49XlkQy5jx3DGJPxtwU3mQUDRnlsFCfyxHHWzAE7Y2gPPpZ/hkG7Tc9nX+UO/5FgYNokXJm3qyPD9f3IpjoVYNxhZp40SzUvLmck4JqHA6Xnzh4EMa9Wdk5eizsh9pJGg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; s=arcselector9901; h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1; bh=J2dCKPp9nJh8QuGFk3Z1emetfoiVxXA2NE7HcQXhIRQ=; b=j3zcPfTSSR6s0GEwxgrqJRvhT9VxLWLeG7hiPDziWSLAbC0YXim5RSWa42pvE+i7SfX3W8tEm5YKQfv+x9lnQL5NCausIX7tNy3I3R007ZEh51BSgqsbseWbddSoQgCDWk4abr2kMXIcuy/O8ImCcKvgrzqZn84QHtOI/hozKxQWyZmQ55EhG7CHqwiCPpe6R/mCMU7OnAj72Hb0ELjdil9aN3eBHESn+NUU8v/A+KKA1HzQi+jR4XNvYVV5gKeZ59iBqAl2x22GKjZhS/csPXGBr60f5rQTXl9aeEo8+QKkQs/eJ6DDY44dSHoLqqqH3XjDctuGCevwNhy1Ra3/zw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass smtp.mailfrom=cookmedical.com; dmarc=pass action=none header.from=cookmedical.com; dkim=pass header.d=cookmedical.com; arc=none
+Received: from CH3PR11MB8749.namprd11.prod.outlook.com (2603:10b6:610:1c9::6) by PH7PR11MB7962.namprd11.prod.outlook.com (2603:10b6:510:245::7) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7633.36; Mon, 10 Jun 2024 14:35:28 +0000
+Received: from CH3PR11MB8749.namprd11.prod.outlook.com ([fe80::71a3:2769:55ef:edc1]) by CH3PR11MB8749.namprd11.prod.outlook.com ([fe80::71a3:2769:55ef:edc1%5]) with mapi id 15.20.7633.036; Mon, 10 Jun 2024 14:35:28 +0000
+From: "White, Susan" <Susan.White@cookmedical.com>
+To: Ben Webb <ben.webb340@gmail.com>
+Subject: JET program
+Thread-Topic: JET program
+Thread-Index: Adq7Qu1ls+zp+sJSSxycsrWvbR4YRQ==
+Date: Mon, 10 Jun 2024 14:35:28 +0000
+Message-ID: <CH3PR11MB8749D3856445275D95E5787CE5C62@CH3PR11MB8749.namprd11.prod.outlook.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: yes
+X-MS-TNEF-Correlator: 
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: CH3PR11MB8749:EE_|PH7PR11MB7962:EE_
+x-ms-office365-filtering-correlation-id: 21663931-9e4e-4949-b41a-08dc895a92ce
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;ARA:13230031|366007|376005|1800799015|38070700009;
+x-microsoft-antispam-message-info: jyGkfMOm0FknFacxothjmtLx2lhEY5XG5hI0HvDKgRYC3UfQT/ZW2t3W+wQJd5q8UhJhCSCA0uXj0t12voxQH8dNB5tx/uB6mETyZCoLUbQM82bW7tSSaoOe7NMhR6AIbc+sJxGV0TEkon+wNFFZQotgNecdZigtFkxCvI+35dA5f8upESIc1yput6TIQPeulmTmhT//IDofYrhdOgVi4j10gJ+qb/ZbcfsVEQvb+JFiuCIBW+dB7DjzChbOSY1VkAhqqlfSlftVkF+wcl59Jz/DNJBzB7YRrosPJ+EeJA9HtEEYUEpUVRx+W9ExnTCoAmk4P9937g/2z6ZMPJrmUy7ZxzuXDt0iThYeNptkttPHwmjiBQHD3B5DIW+PwLeoIo5rUq5i/dTTg3H3XMBxI/7m2nBCAv2MFuns2wEZnRWQz8Ub+LRsRun+srJbzqTBg6wZHsIiwBcAe/fSypHtbRN9qHCNtnWwBS6bT20+jOhXJpc9sc8Hu2M7/W2f4LMZxgL1qZ8+eOK+ZogkGGImDkFkr0zr16IChXUr1CCw5oYO9KNhe8A6qNKDISnfyoA/Dsc8vdvog8yeYVpL07VZ8aXY5CASIt8PEc5o770/lQHYbjfq6A2a8RM5N3oZr2BUozoPLqXcl5VXw/tgTr3TTOBQENutpHrQUENNP3Fu2EPRZQV5SO1aVpT/lUsId4/E6QAKV6GYDVJT6nn0cKgXqWKqNqSAaPG8JJ0cq0At3ObmvROL8VsQsWx1qBS49HqDGB8ibI2Uwof+wG8pykrWI+bz6dBZ5BYa87n08w+0DVJws23ULyKvH0Y87rj5H4YZN9TXwDMYM9rASl3eAVfM7czFnk/LqfvW9dnRqwRfjzBSQWdAK+fna0FU5baBS68XxzlZIOjv0n5BpcHsCJyUD10KvAo3TKaXFQ0eWSKq4v+4VI3figv7NpZG2eIZOVPbohrUA4I7tUAVheiJmPesvqrJ8YdmgSnen/i/qOlH0t3u6iY3n9zxkgAqNuU6yoyzNRo848J24J9LCbbAuQX9uOue0tWOIT627MiywclyZCjxbVuUwaht33L3KchQu2LnqT9LwsAZ72utCYYwBBh9eV78UKsCn5cTGdmVY2nCNBcsMXUS8xlNOmz+tBA3veRM+/QPcrjIpKpDkzmXcAChlcu8gaF1ZphNesj7kmpFPjPJS1sYqWvG+ypi7DRdxMTLwBPjVRM2eCSycrQdP0wJ9rNxHDTZ+MyVAxNtIOjJXiU0IexJx4r8plMH625rjhbOTgcOLmBBRTlpPQs4wLqYsPojaRt85HE55QJv+VjOMwYkhoRe30Oa2EnjZRTM0dFH
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CH3PR11MB8749.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(366007)(376005)(1800799015)(38070700009);DIR:OUT;SFP:1102;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: em591w550v+r2Z71RJ+vcp5C3bhkG2RTIJPXLKsoTiGbixFbIkpfGi3Bq3D3bmK0C7mS4WcUh9Xpmvljs3vd0ENbmvhjSe+kvwfkg7854xZMx1m9/3A8OJ+iN0PuBlTtRx5JvJpotusTi/VuImvqi/nMOMbo8Usz2ulKCEzL2K+KcpIf/l6hEXa9l/EL74A4vYLFWFPlr5gVf8GOsmfgUsTNG8tDi9+ohZ/fVYCorxKa1LnISLbyMUzJbtBWrig8TUaSB06QYHgNdxA+vCDMKcT06WMs5MK0cD4SLyUK9KakEM91LJ/cDO32kJgzbyk+QfL9iV3jMOCeVrzFGhkYSqSU64x3t+EQnsC5Qu0xla96n7zoI0B2exZdXfRcMWsMoOygIjdZyKAemBRT93CCJ7A/iihZL6K6l1zkd53pJTFyCFyu2GvPTGivDx4/rizNCHyvhwjMeCf+6yG4tGycSv8OnKLBBaP6ULs62d7MBz1UmiT72hpSKGAjLm4JLD66VHktcDHtDO9XbU56ucbMVdQwLHrolGwpOEhDhWXxvzfH3v0/6/EbUQKXXWNuJ/eZ8bfx0xzG81gLvcBrsdzXb6ISPeFAMHzq6tq28O5qOpPGiEV9Hdvjo9fJzyrKfGXRN0zaaBPFZ+X8HilCmS89EGHrPUVgRwKURWNXl5IgtSCRloTes5nACXZSZooLS6a8qrbr/iv2Sd/DEF6iVpyqBLtLgrJJRpb6Wux7s+LTqzhcOVevdatMiZFa84mZVBv9Os1Pz846mOyx5R5VhEMNSMg1Zz+UYzTqxKXUFICMMbv/nafnWCH4+cLUyE4pnBJNNpjlnP0CYVZh7M8HjYaq1ohHw2EWNeC8IAEYzqp0Tw//4h7R1O5r+6bjOA5bshyKToYbVZw/4JAQLTl4sEUnnswk/gesBhvHOVvxBQd8A8db7M0a/aXfzWbNvND8DJD+VNCKgwkQpjugBDoL2Y32h5ipXUrFjmmWxHi4TwoNH0PegEuIkEiUXNfp6MyF9fE0H2hvr5+aqNJGyZUQu8hWS7LGIYmORUJxg05lJhBqfuJyOHye3Dt9iV5xDY0kqG0vNRWPa9KNTIjwl+5TUlKBwX9dtqf2n6XA0mvX9PXbCJJC9UJK/B3GZ3uuarGrzMbFu/XmWpkHoLzoNT5OsoGzgZqPsXTHyxMYx9Rla0zAWEsTMAJQybY3hDmiJz4d3uuVvN8JgTwbyokNZangrUw8gSCPyFCUkc9Piz1JRv4V1Q+jVhzCBGST0KFWc9dTp7/XSBvWxGhRC69L8Kc1LM8kh4Lb6FwihRbfrQXwI/nbQi8jXCZ82ETDUwNUtRS/uZvEVug72kdHka3O82GFw2F683paym8lTat0dwbtQplDNFmwko5cyYfNGKhMhhJfG0wn0DJzGVFdwoa3jUnuDarUcwT6OkA3jfY31BAYNjURXUxHJcMHywYDWZjMyc2BmJ96Xws4Dj8cc91hmJy/S9vBJe/X35LrvslNE2CQ7PWtv8bplwEAX4j72D4hJmB9e/hJf5zvvBDp+AtSEdhQonZGFLWuazfAMabadLMBuQR0thQX1jX/J7Pz1PXtU8khEmXytqAB3QqzAndEb0mhKTrAjI4CrI5oR6jNb81oIxx5O+TaBLAue1o24FBsDaPhL7z4rm0zXqY/egCj0ljYV2QRXQ==
+Content-Type: multipart/related; boundary="_004_CH3PR11MB8749D3856445275D95E5787CE5C62CH3PR11MB8749namp_"; type="multipart/alternative"
+MIME-Version: 1.0
+X-OriginatorOrg: cookmedical.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: CH3PR11MB8749.namprd11.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 21663931-9e4e-4949-b41a-08dc895a92ce
+X-MS-Exchange-CrossTenant-originalarrivaltime: 10 Jun 2024 14:35:28.2315 (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: c5e237b2-2ff4-46b5-bc4e-7ef217ba268a
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: AWvz/E3y1w4vx9vEX1JHu1m8eY4iJPN96pxTrHWEsmoQniAsY3XBpW8ljKNu7qmuKdc5hqLSweRUa9E377u/iSr3RPXLf7wi6iCi7HrmM4Y=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH7PR11MB7962
+X-Proofpoint-ORIG-GUID: fdwoFf7l1A-KLV_1Cw9VvYNfjRiLKvww
+X-Proofpoint-GUID: fdwoFf7l1A-KLV_1Cw9VvYNfjRiLKvww
+X-Proofpoint-Virus-Version: vendor=baseguard engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16 definitions=2024-06-10_02,2024-06-10_01,2024-05-17_01
+X-Proofpoint-Spam-Details: rule=outbound_spam_policy_notspam policy=outbound_spam_policy score=0 priorityscore=1501 suspectscore=0 bulkscore=0 clxscore=1011 mlxscore=0 impostorscore=0 malwarescore=0 lowpriorityscore=0 spamscore=0 phishscore=0 mlxlogscore=999 adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2405170001 definitions=main-2406100110
+
+--_004_CH3PR11MB8749D3856445275D95E5787CE5C62CH3PR11MB8749namp_
+Content-Type: multipart/alternative; boundary="_000_CH3PR11MB8749D3856445275D95E5787CE5C62CH3PR11MB8749namp_"
+
+--_000_CH3PR11MB8749D3856445275D95E5787CE5C62CH3PR11MB8749namp_
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+
+WW91IG1heSBvciBtYXkgbm90IGJlIGludGVyZXN0ZWQgaW4gdGhpcyBidXQgc2hhcmluZyBhbnl3
+YXkuIERhbiB3YXMgaGVyZSB0aGlzIHdlZWtlbmQgZm9yIGEgd2VkZGluZyB3YXMgdGVsbGluZyBt
+ZSBhYm91dCBKRVRTLiBHYXV0YW3igJlzIGdpcmxmcmllbmTigJlzIGJyb3RoZXIgKPCfmIIpIGhh
+cyBiZWVuIHBhcnQgb2YgdGhpcyBmb3IgYSBmZXcgeWVhcnMsIHdoaWNoIGlzIGhvdyBEYW4gaGVh
+cmQgYWJvdXQgaXQuDQoNCmh0dHBzOi8vamV0cHJvZ3JhbXVzYS5vcmcvDQoNCldlIG5lZWQgdG8g
+Z2V0IGEgY2FsbCBpbiBzb29uLiBTdGlsbCBtdWNoIHByZWZlciBteSBtb3JuaW5ncy95b3VyIGV2
+ZW5pbmdzIGJ1dCBjYW4gZG8gcmV2ZXJzZSBpZiB0aGF0IGlzIGJldHRlciBmb3IgeW91IQ0KDQpI
+b3BlIGFsbCBpcyB3ZWxsDQoNCuKAnE1vbeKAnSDinaQNCg0KU1VTQU4gV0hJVEUNClUuUy4gUmVp
+bWJ1cnNlbWVudCBNYW5hZ2VyDQoNCkNvb2sgSW5jb3Jwb3JhdGVkDQo3NTAgRGFuaWVscyBXYXkN
+ClAuTy4gQm94IDQ4OQ0KQmxvb21pbmd0b24sIElOIDQ3NDAzDQo4MTIuMzM5LjIyMzUgZXh0LjEw
+MjYzOQ0KODEyLjM0MC42MzE0IGNlbGwNCmNvb2ttZWRpY2FsLmNvbTxodHRwOi8vd3d3LmNvb2tt
+ZWRpY2FsLmNvbS8+DQoNCg0KDQpbY2lkOmltYWdlMDAxLmpwZ0AwMURBQkIyMS5FODZFMkI2MF08
+aHR0cHM6Ly93d3cuY29va21lZGljYWwuY29tL3N1cHBvcnQvcmVpbWJ1cnNlbWVudC8+DQoNClRo
+aXMgZW1haWwgYW5kIGFueSBmaWxlcyB0cmFuc21pdHRlZCB3aXRoIGl0IGFyZSBjb25maWRlbnRp
+YWwsIHByaXZhdGUgYW5kL29yIHByaXZpbGVnZWQgYW5kIGFyZSBpbnRlbmRlZCBzb2xlbHkgZm9y
+IHRoZSB1c2Ugb2YgdGhlIGluZGl2aWR1YWwgb3IgZW50aXR5IHRvIHdob20gdGhleSBhcmUgYWRk
+cmVzc2VkLiBJZiB5b3UgYXJlIG5vdCB0aGUgaW50ZW5kZWQgcmVjaXBpZW50IG9yIHRoZSBwZXJz
+b24gcmVzcG9uc2libGUgZm9yIGRlbGl2ZXJpbmcgdGhpcyBlbWFpbCB0byB0aGUgaW50ZW5kZWQg
+cmVjaXBpZW50LCBiZSBhZHZpc2VkIHRoYXQgeW91IGhhdmUgcmVjZWl2ZWQgdGhpcyBlbWFpbCBp
+biBlcnJvciBhbmQgdGhhdCBhbnkgdXNlLCBkaXNzZW1pbmF0aW9uLCBmb3J3YXJkaW5nLCBwcmlu
+dGluZywgb3IgY29weWluZyBvZiB0aGlzIGVtYWlsIG9yIHRoZSBpbmZvcm1hdGlvbiB0aGVyZWlu
+IGlzIHN0cmljdGx5IHByb2hpYml0ZWQuIElmIHlvdSBoYXZlIHJlY2VpdmVkIHRoaXMgZW1haWwg
+aW4gZXJyb3IsIHBsZWFzZSBub3RpZnkgdGhlIHNlbmRlciBpbW1lZGlhdGVseS4NCg0K
+--_000_CH3PR11MB8749D3856445275D95E5787CE5C62CH3PR11MB8749namp_
+Content-Type: text/html; charset="utf-8"
+Content-Transfer-Encoding: base64
+
+PGh0bWw+DQo8aGVhZD4NCjxtZXRhIGh0dHAtZXF1aXY9IkNvbnRlbnQtVHlwZSIgY29udGVudD0i
+dGV4dC9odG1sOyBjaGFyc2V0PXV0Zi04Ij4NCjxtZXRhIG5hbWU9IkdlbmVyYXRvciIgY29udGVu
+dD0iTWljcm9zb2Z0IFdvcmQgMTUgKGZpbHRlcmVkIG1lZGl1bSkiPg0KPCEtLVtpZiAhbXNvXT48
+c3R5bGU+dlw6KiB7YmVoYXZpb3I6dXJsKCNkZWZhdWx0I1ZNTCk7fQ0Kb1w6KiB7YmVoYXZpb3I6
+dXJsKCNkZWZhdWx0I1ZNTCk7fQ0Kd1w6KiB7YmVoYXZpb3I6dXJsKCNkZWZhdWx0I1ZNTCk7fQ0K
+LnNoYXBlIHtiZWhhdmlvcjp1cmwoI2RlZmF1bHQjVk1MKTt9DQo8L3N0eWxlPjwhW2VuZGlmXS0t
+PjxzdHlsZT48IS0tDQovKiBGb250IERlZmluaXRpb25zICovDQpAZm9udC1mYWNlDQoJe2ZvbnQt
+ZmFtaWx5OiJDYW1icmlhIE1hdGgiOw0KCXBhbm9zZS0xOjIgNCA1IDMgNSA0IDYgMyAyIDQ7fQ0K
+QGZvbnQtZmFjZQ0KCXtmb250LWZhbWlseTpDYWxpYnJpOw0KCXBhbm9zZS0xOjIgMTUgNSAyIDIg
+MiA0IDMgMiA0O30NCkBmb250LWZhY2UNCgl7Zm9udC1mYW1pbHk6QXB0b3M7fQ0KLyogU3R5bGUg
+RGVmaW5pdGlvbnMgKi8NCnAuTXNvTm9ybWFsLCBsaS5Nc29Ob3JtYWwsIGRpdi5Nc29Ob3JtYWwN
+Cgl7bWFyZ2luOjBpbjsNCglmb250LXNpemU6MTEuMHB0Ow0KCWZvbnQtZmFtaWx5OiJBcHRvcyIs
+c2Fucy1zZXJpZjsNCgltc28tbGlnYXR1cmVzOnN0YW5kYXJkY29udGV4dHVhbDt9DQphOmxpbmss
+IHNwYW4uTXNvSHlwZXJsaW5rDQoJe21zby1zdHlsZS1wcmlvcml0eTo5OTsNCgljb2xvcjojNDY3
+ODg2Ow0KCXRleHQtZGVjb3JhdGlvbjp1bmRlcmxpbmU7fQ0Kc3Bhbi5FbWFpbFN0eWxlMTcNCgl7
+bXNvLXN0eWxlLXR5cGU6cGVyc29uYWwtY29tcG9zZTsNCglmb250LWZhbWlseToiQXB0b3MiLHNh
+bnMtc2VyaWY7DQoJY29sb3I6d2luZG93dGV4dDt9DQouTXNvQ2hwRGVmYXVsdA0KCXttc28tc3R5
+bGUtdHlwZTpleHBvcnQtb25seTsNCglmb250LXNpemU6MTEuMHB0O30NCkBwYWdlIFdvcmRTZWN0
+aW9uMQ0KCXtzaXplOjguNWluIDExLjBpbjsNCgltYXJnaW46MS4waW4gMS4waW4gMS4waW4gMS4w
+aW47fQ0KZGl2LldvcmRTZWN0aW9uMQ0KCXtwYWdlOldvcmRTZWN0aW9uMTt9DQotLT48L3N0eWxl
+PjwhLS1baWYgZ3RlIG1zbyA5XT48eG1sPg0KPG86c2hhcGVkZWZhdWx0cyB2OmV4dD0iZWRpdCIg
+c3BpZG1heD0iMTAyNiIgLz4NCjwveG1sPjwhW2VuZGlmXS0tPjwhLS1baWYgZ3RlIG1zbyA5XT48
+eG1sPg0KPG86c2hhcGVsYXlvdXQgdjpleHQ9ImVkaXQiPg0KPG86aWRtYXAgdjpleHQ9ImVkaXQi
+IGRhdGE9IjEiIC8+DQo8L286c2hhcGVsYXlvdXQ+PC94bWw+PCFbZW5kaWZdLS0+DQo8L2hlYWQ+
+DQo8Ym9keSBsYW5nPSJFTi1VUyIgbGluaz0iIzQ2Nzg4NiIgdmxpbms9IiM5NjYwN0QiIHN0eWxl
+PSJ3b3JkLXdyYXA6YnJlYWstd29yZCI+DQo8ZGl2IGNsYXNzPSJXb3JkU2VjdGlvbjEiPg0KPHAg
+Y2xhc3M9Ik1zb05vcm1hbCI+WW91IG1heSBvciBtYXkgbm90IGJlIGludGVyZXN0ZWQgaW4gdGhp
+cyBidXQgc2hhcmluZyBhbnl3YXkuIERhbiB3YXMgaGVyZSB0aGlzIHdlZWtlbmQgZm9yIGEgd2Vk
+ZGluZyB3YXMgdGVsbGluZyBtZSBhYm91dCBKRVRTLiBHYXV0YW3igJlzIGdpcmxmcmllbmTigJlz
+IGJyb3RoZXIgKDxzcGFuIHN0eWxlPSJmb250LWZhbWlseTomcXVvdDtTZWdvZSBVSSBFbW9qaSZx
+dW90OyxzYW5zLXNlcmlmIj7wn5iCPC9zcGFuPikgaGFzIGJlZW4gcGFydA0KIG9mIHRoaXMgZm9y
+IGEgZmV3IHllYXJzLCB3aGljaCBpcyBob3cgRGFuIGhlYXJkIGFib3V0IGl0LjxvOnA+PC9vOnA+
+PC9wPg0KPHAgY2xhc3M9Ik1zb05vcm1hbCI+PG86cD4mbmJzcDs8L286cD48L3A+DQo8cCBjbGFz
+cz0iTXNvTm9ybWFsIj48YSBocmVmPSJodHRwczovL2pldHByb2dyYW11c2Eub3JnLyI+aHR0cHM6
+Ly9qZXRwcm9ncmFtdXNhLm9yZy88L2E+PG86cD48L286cD48L3A+DQo8cCBjbGFzcz0iTXNvTm9y
+bWFsIj48bzpwPiZuYnNwOzwvbzpwPjwvcD4NCjxwIGNsYXNzPSJNc29Ob3JtYWwiPldlIG5lZWQg
+dG8gZ2V0IGEgY2FsbCBpbiBzb29uLiBTdGlsbCBtdWNoIHByZWZlciBteSBtb3JuaW5ncy95b3Vy
+IGV2ZW5pbmdzIGJ1dCBjYW4gZG8gcmV2ZXJzZSBpZiB0aGF0IGlzIGJldHRlciBmb3IgeW91ITxv
+OnA+PC9vOnA+PC9wPg0KPHAgY2xhc3M9Ik1zb05vcm1hbCI+PG86cD4mbmJzcDs8L286cD48L3A+
+DQo8cCBjbGFzcz0iTXNvTm9ybWFsIj5Ib3BlIGFsbCBpcyB3ZWxsPG86cD48L286cD48L3A+DQo8
+cCBjbGFzcz0iTXNvTm9ybWFsIj48bzpwPiZuYnNwOzwvbzpwPjwvcD4NCjxwIGNsYXNzPSJNc29O
+b3JtYWwiPuKAnE1vbeKAnSA8c3BhbiBzdHlsZT0iZm9udC1mYW1pbHk6JnF1b3Q7U2Vnb2UgVUkg
+RW1vamkmcXVvdDssc2Fucy1zZXJpZiI+DQrinaQ8L3NwYW4+PG86cD48L286cD48L3A+DQo8cCBj
+bGFzcz0iTXNvTm9ybWFsIj48bzpwPiZuYnNwOzwvbzpwPjwvcD4NCjxwIGNsYXNzPSJNc29Ob3Jt
+YWwiPjxiPjxzcGFuIHN0eWxlPSJmb250LWZhbWlseTomcXVvdDtBcmlhbCZxdW90OyxzYW5zLXNl
+cmlmO21zby1saWdhdHVyZXM6bm9uZSI+U1VTQU4gV0hJVEU8bzpwPjwvbzpwPjwvc3Bhbj48L2I+
+PC9wPg0KPHAgY2xhc3M9Ik1zb05vcm1hbCI+PHNwYW4gc3R5bGU9ImZvbnQtZmFtaWx5OiZxdW90
+O0FyaWFsJnF1b3Q7LHNhbnMtc2VyaWY7bXNvLWxpZ2F0dXJlczpub25lIj5VLlMuIFJlaW1idXJz
+ZW1lbnQgTWFuYWdlcjxvOnA+PC9vOnA+PC9zcGFuPjwvcD4NCjxwIGNsYXNzPSJNc29Ob3JtYWwi
+PjxzcGFuIHN0eWxlPSJmb250LWZhbWlseTomcXVvdDtBcmlhbCZxdW90OyxzYW5zLXNlcmlmO21z
+by1saWdhdHVyZXM6bm9uZSI+PG86cD4mbmJzcDs8L286cD48L3NwYW4+PC9wPg0KPHAgY2xhc3M9
+Ik1zb05vcm1hbCI+PHNwYW4gc3R5bGU9ImZvbnQtZmFtaWx5OiZxdW90O0FyaWFsJnF1b3Q7LHNh
+bnMtc2VyaWY7Y29sb3I6Z3JheTttc28tbGlnYXR1cmVzOm5vbmUiPkNvb2sgSW5jb3Jwb3JhdGVk
+PG86cD48L286cD48L3NwYW4+PC9wPg0KPHAgY2xhc3M9Ik1zb05vcm1hbCI+PHNwYW4gc3R5bGU9
+ImZvbnQtZmFtaWx5OiZxdW90O0FyaWFsJnF1b3Q7LHNhbnMtc2VyaWY7Y29sb3I6Z3JheTttc28t
+bGlnYXR1cmVzOm5vbmUiPjc1MCBEYW5pZWxzIFdheTxvOnA+PC9vOnA+PC9zcGFuPjwvcD4NCjxw
+IGNsYXNzPSJNc29Ob3JtYWwiPjxzcGFuIHN0eWxlPSJmb250LWZhbWlseTomcXVvdDtBcmlhbCZx
+dW90OyxzYW5zLXNlcmlmO2NvbG9yOmdyYXk7bXNvLWxpZ2F0dXJlczpub25lIj5QLk8uIEJveCA0
+ODk8bzpwPjwvbzpwPjwvc3Bhbj48L3A+DQo8cCBjbGFzcz0iTXNvTm9ybWFsIj48c3BhbiBzdHls
+ZT0iZm9udC1mYW1pbHk6JnF1b3Q7QXJpYWwmcXVvdDssc2Fucy1zZXJpZjtjb2xvcjpncmF5O21z
+by1saWdhdHVyZXM6bm9uZSI+Qmxvb21pbmd0b24sIElOIDQ3NDAzPG86cD48L286cD48L3NwYW4+
+PC9wPg0KPHAgY2xhc3M9Ik1zb05vcm1hbCI+PHNwYW4gc3R5bGU9ImZvbnQtZmFtaWx5OiZxdW90
+O0FyaWFsJnF1b3Q7LHNhbnMtc2VyaWY7Y29sb3I6Z3JheTttc28tbGlnYXR1cmVzOm5vbmUiPjgx
+Mi4zMzkuMjIzNSBleHQuMTAyNjM5PG86cD48L286cD48L3NwYW4+PC9wPg0KPHAgY2xhc3M9Ik1z
+b05vcm1hbCI+PHNwYW4gc3R5bGU9ImZvbnQtZmFtaWx5OiZxdW90O0FyaWFsJnF1b3Q7LHNhbnMt
+c2VyaWY7Y29sb3I6Z3JheTttc28tbGlnYXR1cmVzOm5vbmUiPjgxMi4zNDAuNjMxNCBjZWxsPG86
+cD48L286cD48L3NwYW4+PC9wPg0KPHAgY2xhc3M9Ik1zb05vcm1hbCI+PHNwYW4gc3R5bGU9ImZv
+bnQtZmFtaWx5OiZxdW90O0FyaWFsJnF1b3Q7LHNhbnMtc2VyaWY7bXNvLWxpZ2F0dXJlczpub25l
+Ij48YSBocmVmPSJodHRwOi8vd3d3LmNvb2ttZWRpY2FsLmNvbS8iPjxzcGFuIHN0eWxlPSJjb2xv
+cjpibHVlIj5jb29rbWVkaWNhbC5jb208L3NwYW4+PC9hPjxvOnA+PC9vOnA+PC9zcGFuPjwvcD4N
+CjxwIGNsYXNzPSJNc29Ob3JtYWwiPjxzcGFuIHN0eWxlPSJmb250LWZhbWlseTomcXVvdDtBcmlh
+bCZxdW90OyxzYW5zLXNlcmlmO21zby1saWdhdHVyZXM6bm9uZSI+PG86cD4mbmJzcDs8L286cD48
+L3NwYW4+PC9wPg0KPHAgY2xhc3M9Ik1zb05vcm1hbCI+PHNwYW4gc3R5bGU9ImZvbnQtZmFtaWx5
+OiZxdW90O0FyaWFsJnF1b3Q7LHNhbnMtc2VyaWY7bXNvLWxpZ2F0dXJlczpub25lIj48bzpwPiZu
+YnNwOzwvbzpwPjwvc3Bhbj48L3A+DQo8cCBjbGFzcz0iTXNvTm9ybWFsIj48c3BhbiBzdHlsZT0i
+Zm9udC1mYW1pbHk6JnF1b3Q7QXJpYWwmcXVvdDssc2Fucy1zZXJpZjttc28tbGlnYXR1cmVzOm5v
+bmUiPjxvOnA+Jm5ic3A7PC9vOnA+PC9zcGFuPjwvcD4NCjxwIGNsYXNzPSJNc29Ob3JtYWwiPjxh
+IGhyZWY9Imh0dHBzOi8vd3d3LmNvb2ttZWRpY2FsLmNvbS9zdXBwb3J0L3JlaW1idXJzZW1lbnQv
+Ij48c3BhbiBzdHlsZT0iY29sb3I6d2luZG93dGV4dDt0ZXh0LWRlY29yYXRpb246bm9uZSI+PGlt
+ZyBib3JkZXI9IjAiIHdpZHRoPSI4MDAiIGhlaWdodD0iMjAwIiBzdHlsZT0id2lkdGg6OC4zMzMz
+aW47aGVpZ2h0OjIuMDgzM2luIiBpZD0iUGljdHVyZV94MDAyMF8xIiBzcmM9ImNpZDppbWFnZTAw
+MS5qcGdAMDFEQUJCMjEuRTg2RTJCNjAiPjwvc3Bhbj48L2E+PHNwYW4gc3R5bGU9ImZvbnQtZmFt
+aWx5OiZxdW90O0FyaWFsJnF1b3Q7LHNhbnMtc2VyaWY7bXNvLWxpZ2F0dXJlczpub25lIj48bzpw
+PjwvbzpwPjwvc3Bhbj48L3A+DQo8cCBjbGFzcz0iTXNvTm9ybWFsIj48c3BhbiBzdHlsZT0iZm9u
+dC1mYW1pbHk6JnF1b3Q7QXJpYWwmcXVvdDssc2Fucy1zZXJpZjtjb2xvcjojMUY0OTdEO21zby1s
+aWdhdHVyZXM6bm9uZSI+PG86cD4mbmJzcDs8L286cD48L3NwYW4+PC9wPg0KPHAgY2xhc3M9Ik1z
+b05vcm1hbCI+PHNwYW4gc3R5bGU9ImZvbnQtc2l6ZTo5LjBwdDtmb250LWZhbWlseTomcXVvdDtB
+cmlhbCZxdW90OyxzYW5zLXNlcmlmO2NvbG9yOmdyYXk7bXNvLWxpZ2F0dXJlczpub25lIj5UaGlz
+IGVtYWlsIGFuZCBhbnkgZmlsZXMgdHJhbnNtaXR0ZWQgd2l0aCBpdCBhcmUgY29uZmlkZW50aWFs
+LCBwcml2YXRlIGFuZC9vciBwcml2aWxlZ2VkIGFuZCBhcmUgaW50ZW5kZWQgc29sZWx5IGZvciB0
+aGUgdXNlIG9mIHRoZSBpbmRpdmlkdWFsIG9yDQogZW50aXR5IHRvIHdob20gdGhleSBhcmUgYWRk
+cmVzc2VkLiBJZiB5b3UgYXJlIG5vdCB0aGUgaW50ZW5kZWQgcmVjaXBpZW50IG9yIHRoZSBwZXJz
+b24gcmVzcG9uc2libGUgZm9yIGRlbGl2ZXJpbmcgdGhpcyBlbWFpbCB0byB0aGUgaW50ZW5kZWQg
+cmVjaXBpZW50LCBiZSBhZHZpc2VkIHRoYXQgeW91IGhhdmUgcmVjZWl2ZWQgdGhpcyBlbWFpbCBp
+biBlcnJvciBhbmQgdGhhdCBhbnkgdXNlLCBkaXNzZW1pbmF0aW9uLCBmb3J3YXJkaW5nLCBwcmlu
+dGluZywNCiBvciBjb3B5aW5nIG9mIHRoaXMgZW1haWwgb3IgdGhlIGluZm9ybWF0aW9uIHRoZXJl
+aW4gaXMgc3RyaWN0bHkgcHJvaGliaXRlZC4gSWYgeW91IGhhdmUgcmVjZWl2ZWQgdGhpcyBlbWFp
+bCBpbiBlcnJvciwgcGxlYXNlIG5vdGlmeSB0aGUgc2VuZGVyIGltbWVkaWF0ZWx5LjxvOnA+PC9v
+OnA+PC9zcGFuPjwvcD4NCjxwIGNsYXNzPSJNc29Ob3JtYWwiPjxvOnA+Jm5ic3A7PC9vOnA+PC9w
+Pg0KPC9kaXY+DQo8L2JvZHk+DQo8L2h0bWw+DQo=
+--_000_CH3PR11MB8749D3856445275D95E5787CE5C62CH3PR11MB8749namp_--
+--_004_CH3PR11MB8749D3856445275D95E5787CE5C62CH3PR11MB8749namp_
+Content-Type: image/jpeg; name="image001.jpg"
+Content-Description: image001.jpg
+Content-Disposition: inline; filename="image001.jpg"; size=60648; creation-date="Mon, 10 Jun 2024 14:35:27 GMT"; modification-date="Mon, 10 Jun 2024 14:35:28 GMT"
+Content-ID: <image001.jpg@01DABB21.E86E2B60>
+Content-Transfer-Encoding: base64
+
+
+--_004_CH3PR11MB8749D3856445275D95E5787CE5C62CH3PR11MB8749namp_--
+<<TESTCASE>>
+You may or may not be interested in this but sharing anyway. Dan was here this weekend for a wedding was telling me about JETS. Gautam’s girlfriend’s brother (😂) has been part of this for a few years, which is how Dan heard about it.
+
+https://jetprogramusa.org/
+
+We need to get a call in soon. Still much prefer my mornings/your evenings but can do reverse if that is better for you!
+
+Hope all is well
+
+“Mom” ❤
+
+SUSAN WHITE
+U.S. Reimbursement Manager
+
+Cook Incorporated
+750 Daniels Way
+P.O. Box 489
+Bloomington, IN 47403
+812.339.2235 ext.102639
+812.340.6314 cell
+cookmedical.com<http://www.cookmedical.com/>
+
+
+
+[cid:image001.jpg@01DABB21.E86E2B60]<https://www.cookmedical.com/support/reimbursement/>
+
+This email and any files transmitted with it are confidential, private and/or privileged and are intended solely for the use of the individual or entity to whom they are addressed. If you are not the intended recipient or the person responsible for delivering this email to the intended recipient, be advised that you have received this email in error and that any use, dissemination, forwarding, printing, or copying of this email or the information therein is strictly prohibited. If you have received this email in error, please notify the sender immediately.
+<<TESTCASE>>
+Delivered-To: ben.webb340@gmail.com
+///Return-Path: <Susan.White@cookmedical.com>
+///From: "White, Susan" <Susan.White@cookmedical.com>
+///To: Ben Webb <ben.webb340@gmail.com>
+///Subject: JET program
+///Thread-Topic: JET program
+///Thread-Index: Adq7Qu1ls+zp+sJSSxycsrWvbR4YRQ==
+///Date: Mon, 10 Jun 2024 14:35:28 +0000
+///Message-ID: <CH3PR11MB8749D3856445275D95E5787CE5C62@CH3PR11MB8749.namprd11.prod.outlook.com>
+///Accept-Language: en-US
+///Content-Language: en-US
