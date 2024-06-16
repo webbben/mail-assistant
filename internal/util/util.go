@@ -74,3 +74,8 @@ func PrintfColor(c *color.Color, s string, a ...any) {
 	pf := c.PrintfFunc()
 	pf(s, a...)
 }
+
+func Continue() {
+	fmt.Print("Press Enter to continue...")
+	bufio.NewReader(os.Stdin).ReadString('\n')
+}

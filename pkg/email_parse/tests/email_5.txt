@@ -1,0 +1,154 @@
+Delivered-To: ben.webb340@gmail.com
+Received: by 2002:a2e:95cf:0:b0:2ec:3da:ea89 with SMTP id y15csp558029ljh;
+        Thu, 13 Jun 2024 19:36:32 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHZCLEwYDT3bg4cZi6F1LhkmzlLJY7cXOMhP1Gj6F8Z5OjeWzoAo/Qgz3GpK9Jp0K5H3Chu
+X-Received: by 2002:a05:6870:9725:b0:254:ada1:aa29 with SMTP id 586e51a60fabf-258429d808amr1472631fac.27.1718332592144;
+        Thu, 13 Jun 2024 19:36:32 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1718332592; cv=none;
+        d=google.com; s=arc-20160816;
+        b=dOJ3sFP9fCQ6j5Q37S/hrAoI8C3HoYoByZjZkj7AHPZ8miUs+i04vgMzK603iy0fgK
+         VpLXbbwfYraZf0xs7jco07P8/H9cEChQRSAiW+ryvCnME5vWXE5RonYEyjioAaZE55aP
+         6nhDlUATyYGlu9aHyeq2pecE8tP7cn/XwzdJu4rW5z5nI3fqDHm1crGI/p+qdqXxIPR0
+         mmpsNd9TsMuvs+YBfP0waUZA+2pTXa6zxvFctnZO0YQlYPpR0Bhi5kld/06b825+wTlx
+         t5AYCT8xU3hHZ6cY/d4wHmlv70u2x8sZCo+Vgk+Bkme8pxM6uXdviiaeduHJTc3FRZ7l
+         CEew==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=date:content-transfer-encoding:mime-version:subject:to:reply-to
+         :from:errors-to:message-id:dkim-signature;
+        bh=KNioSjzzm0JbRFRrxJvEP2FWLbf2Kd4gyeU8grE/DUw=;
+        fh=cdRX5qOCSA8qzA8OLFurXcuWaIcI+cdC20d7hi5vLVA=;
+        b=amfjIGMqszVuEypHvaSu0HnCeuLfe435IiBMU/c5tXa+hI9h/991/Y+LcCrwAeLFG5
+         pFtpgeA/YA/FGBzttgjQTlDLsnJ9kH4AWQ9ULD5wuYU5XbgCnsluTfEs25vLZc5xSLpa
+         4UBY8ywl1B3D8ad3ALJ3YTdmzC3NCOGYJKCnQolHB0OEv2VCrQiDb07kss7+ZeyC15+y
+         yrkJ3awYPmyRKisjSeCKQu/9theWePNLMT3pPr581e+8UlDULQJxyfqwOHwJN7n8ig9J
+         3eOB3tJeYmuV9w18dETg3SO/hQnBzEROv37rbJJIk5L+h8tl41fURCMmohKX7U4Dl/f6
+         qUSQ==;
+        dara=google.com
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@smbc-card.com header.s=2021.smbcdebit.tis header.b=mqrzB5kU;
+       spf=pass (google.com: domain of z-k_01001-xh2ns3-0-9c70-011ben.webb340gmail.com@bma-tis01.mrs.mpub.ne.jp designates 106.185.84.228 as permitted sender) smtp.mailfrom=z-k_01001-xh2ns3-0-9c70-011ben.webb340gmail.com@bma-tis01.mrs.mpub.ne.jp;
+       dmarc=pass (p=REJECT sp=QUARANTINE dis=NONE) header.from=smbc-card.com
+Return-Path: <z-k_01001-xh2ns3-0-9c70-011ben.webb340gmail.com@bma-tis01.mrs.mpub.ne.jp>
+Received: from bmmrb3202.jpx1.mta.emberpoint.com (bmmrb3202.jpx1.mta.emberpoint.com. [106.185.84.228])
+        by mx.google.com with ESMTPS id 41be03b00d2f7-6fedd4f44d8si2709320a12.54.2024.06.13.19.36.31
+        for <ben.webb340@gmail.com>
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 13 Jun 2024 19:36:32 -0700 (PDT)
+Received-SPF: pass (google.com: domain of z-k_01001-xh2ns3-0-9c70-011ben.webb340gmail.com@bma-tis01.mrs.mpub.ne.jp designates 106.185.84.228 as permitted sender) client-ip=106.185.84.228;
+Authentication-Results: mx.google.com;
+       dkim=pass header.i=@smbc-card.com header.s=2021.smbcdebit.tis header.b=mqrzB5kU;
+       spf=pass (google.com: domain of z-k_01001-xh2ns3-0-9c70-011ben.webb340gmail.com@bma-tis01.mrs.mpub.ne.jp designates 106.185.84.228 as permitted sender) smtp.mailfrom=z-k_01001-xh2ns3-0-9c70-011ben.webb340gmail.com@bma-tis01.mrs.mpub.ne.jp;
+       dmarc=pass (p=REJECT sp=QUARANTINE dis=NONE) header.from=smbc-card.com
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1718332591;
+	s=2021.smbcdebit.tis; d=smbc-card.com;
+	h=Message-ID:From:Reply-To:To:Subject:MIME-Version:Content-Type:Content-Transfer-Encoding:Date;
+	bh=KNioSjzzm0JbRFRrxJvEP2FWLbf2Kd4gyeU8grE/DUw=;
+	b=mqrzB5kUGxUnBPqzVnR7nDfr/2X6GS2kA01vWWHOzxsg3aFs9hqfS41i581rBHN+
+	w7KD4zFgd9F29pP75JKMad0VJHwYwEdiMvIqeaqJoXb0MNSWlz3DryUjuLA4VFdcOHO
+	vwF6B0hRoaWHBk06K5ouMK7ay9W3cPDBanF4+zxSdw5nWFBS6Y3xJ7vWryzVy+1GN1N
+	HI53Cs8X4IG19UZF1u/Hl+0S0qfiX8NaS3hHoH9zlEluf2UEPm3XZD4Yf/gxS2vtLLA
+	m5ZNP6t+EIzSK/XSiKthKW1C1POmFGZcm6EISp/ZgeX7rIfHzMmVBc5LHUW8tVoHav2
+	iio+dIG3mg==
+Message-ID: <1718332587000.2024061411.k_01001.0.435708@bma-tis01.mrs.mpub.ne.jp>
+Errors-To: z-k_01001-xh2ns3-0-9c70-011ben.webb340gmail.com@bma-tis01.mrs.mpub.ne.jp
+From: smbc-debit@smbc-card.com
+Reply-To: smbc-debit@smbc-card.com
+To: ben.webb340@gmail.com
+Subject: =?ISO-2022-JP?B?GyRCJDRNeE1RJE4kKkNOJGkkOyFaOzAwZj07TSclKyE8JUkhWxsoQg==?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-2022-JP
+Content-Transfer-Encoding: quoted-printable
+Date: Fri, 14 Jun 2024 11:36:19 +0900 (JST)
+
+=1B$B#W#E#B#B!!#B#E#N#J#A=1B(B =1B$BMM=1B(B
+
+=1B$B$$$D$b#O#l#i#v#e%U%l%-%7%V%k%Z%$$r$4MxMQD:$-$"$j$,$H$&$4$6$$$^$9!#=1B(=
+B
+=1B$B$*5RMM$N%+!<%I$4MxMQFbMF!J%G%S%C%H%b!<%I!K$r$*CN$i$;$$$?$7$^$9!#=1B(B
+
+
+=1B$B!~MxMQF|=1B(B  =1B$B!'=1B(B2024/06/14 11:35:57
+=1B$B!~MxMQ@h!!!'=1B(BSEVEN-ELEVEN
+=1B$B!~MxMQ6b3[!'=1B(B456=1B$B1_=1B(B
+=1B$B!~>5G'HV9f!'=1B(B419092
+  =1B$B"(MxMQF|$OF|K\I8=3D`;~9o$H$J$j$^$9!#=1B(B
+=1B$B!!"(MxMQ@h$O<B:]$NE9J^L>$H0[$J$k>l9g$,$4$6$$$^$9!#=1B(B
+=1B$B!!"(3$30=1B(BATM=1B$B$G$N8=3DCODL2_$N0z$-=3DP$7$O>e5-6b3[$K=1B(BATM=1B=
+$BMxMQ<j?tNA=1B(B110=1B$B1_$r2C$($F0z$-Mn$H$7CW$7$^$9!#=1B(B
+
+=1B$B$4MxMQ$K$*?4Ev$?$j$N$J$$>l9g$O!"$3$A$i$r$43NG'$/$@$5$$!#=1B(B
+https://www.smbc-card.com/debit/info/meisai_inquiry.jsp
+
+=1B$B$^$?!"K|$,0l?H$K3P$($N$J$$>l9g$O!"$4<+?H$G%+!<%I$N$4MxMQ$r0l;~E*$K@)8B=
+$9$k$3$H$,2DG=3D$J%5!<%S%9$r$4MQ0U$7$F$*$j$^$9!#;00f=3D;M'6d9T%"%W%j$^$?$O=
+=1B(BVpass=1B$B%"%W%j$+$i@_Dj$/$@$5$$!#=1B(B
+
+=1B$B"(%+!<%I$4MxMQ$N>5G'>H2q$,$"$C$?>l9g$KDLCN$5$l$k%5!<%S%9$G$"$j!"%+!<%I=
+$N$4MxMQ5Z$S$4@A5a$r3NDj$9$k$b$N$G$O$"$j$^$;$s!#=1B(B
+
+=1B$B"(0YBXEy$N1F6A$K$h$j$4MxMQ3[$+$iJQ99$,$"$C$?>l9g$O!":FEY%a!<%k$K$F$4O"=
+MmCW$7$^$9!#=1B(B
+
+=1B$B"(=1B(BiD=1B$B$G$N$*;YJ'$$;~$O>o$K%G%S%C%H%b!<%I$K$J$j$^$9!#=1B(B
+https://qa.smbc-card.com/mem/detail?site=3D4H4A00IO&id=3D2248
+
+=1B$B"($3$N%a!<%k%"%I%l%9$OAw?.@lMQ$G$9!#$4JV?.$K2sEz$G$-$^$;$s!#=1B(B
+
+=1B$B"#H/9T<T=1B(B
+=1B$B;00f=3D;M'%+!<%I3t<02q<R=1B(B
+https://www.smbc-card.com/
+=1B$B")=1B(B135-0061 =1B$BEl5~ET9>El6hK-=3D'=1B(B2=1B$BCzL\=1B(B2=1B$BHV=1B=
+(B31=1B$B9f=1B(B SMBC=1B$BK-=3D'%S%k=1B(B
+
+=1B$B"#$*Ld9g$;$O$3$A$i$r$43NG'$/$@$5$$!#=1B(B
+https://www.smbc-card.com/olive_flexible_pay/contact/index.jsp
+
+=1B$B"(!V=1B(BiD=1B$B!W$O3t<02q<R=1B(BNTT=1B$B%I%3%b$NEPO?>&I8$G$9!#=1B(B
+<<TESTCASE>>
+ＷＥＢＢ　ＢＥＮＪＡ 様
+
+いつもＯｌｉｖｅフレキシブルペイをご利用頂きありがとうございます。
+お客様のカードご利用内容（デビットモード）をお知らせいたします。
+
+
+◇利用日  ：2024/06/14 11:35:57
+◇利用先　：SEVEN-ELEVEN
+◇利用金額：456円
+◇承認番号：419092
+  ※利用日は日本標準時刻となります。
+　※利用先は実際の店舗名と異なる場合がございます。
+　※海外ATMでの現地通貨の引き出しは上記金額にATM利用手数料110円を加えて引き落とし致します。
+
+ご利用にお心当たりのない場合は、こちらをご確認ください。
+https://www.smbc-card.com/debit/info/meisai_inquiry.jsp
+
+また、万が一身に覚えのない場合は、ご自身でカードのご利用を一時的に制限することが可能なサービスをご用意しております。三井住友銀行アプリまたはVpassアプリから設定ください。
+
+※カードご利用の承認照会があった場合に通知されるサービスであり、カードのご利用及びご請求を確定するものではありません。
+
+※為替等の影響によりご利用額から変更があった場合は、再度メールにてご連絡致します。
+
+※iDでのお支払い時は常にデビットモードになります。
+https://qa.smbc-card.com/mem/detail?site=4H4A00IO&id=2248
+
+※このメールアドレスは送信専用です。ご返信に回答できません。
+
+■発行者
+三井住友カード株式会社
+https://www.smbc-card.com/
+〒135-0061 東京都江東区豊洲2丁目2番31号 SMBC豊洲ビル
+
+■お問合せはこちらをご確認ください。
+https://www.smbc-card.com/olive_flexible_pay/contact/index.jsp
+
+※「iD」は株式会社NTTドコモの登録商標です。
+<<TESTCASE>>
+Message-ID: <1718332587000.2024061411.k_01001.0.435708@bma-tis01.mrs.mpub.ne.jp>
+///Errors-To: z-k_01001-xh2ns3-0-9c70-011ben.webb340gmail.com@bma-tis01.mrs.mpub.ne.jp
+///From: smbc-debit@smbc-card.com
+///Reply-To: smbc-debit@smbc-card.com
+///To: ben.webb340@gmail.com
+///Subject: ご利用のお知らせ【三井住友カード】
+///Content-Type: text/plain; charset=ISO-2022-JP
+///Content-Transfer-Encoding: quoted-printable
+///Date: Fri, 14 Jun 2024 11:36:19 +0900 (JST)

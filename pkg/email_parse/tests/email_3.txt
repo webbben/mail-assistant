@@ -1,0 +1,136 @@
+Delivered-To: ben.webb340@gmail.com
+Received: by 2002:a05:651c:2cb:b0:2eb:e1a4:7bd3 with SMTP id f11csp385356ljo;
+        Sun, 9 Jun 2024 18:23:57 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFVdaqWIcSncEEKVhb7pEptoFcLPUhcoSk+nAN+Rkzzpl1FmAvwrdzXpQhFivevCBFEPjMs
+X-Received: by 2002:a05:6a20:7f91:b0:1b0:58e:1b93 with SMTP id adf61e73a8af0-1b2f969ee03mr9353795637.1.1717982636504;
+        Sun, 09 Jun 2024 18:23:56 -0700 (PDT)
+ARC-Seal: i=2; a=rsa-sha256; t=1717982636; cv=pass;
+        d=google.com; s=arc-20160816;
+        b=eEiYw6ha7lDDZVQSm3gXSGLEGoQmAIRUFTWI+PzvJyF4cjA6rLD1OHY5hWecJMnL31
+         z2JrNjs6GOrIxA5III381jdKPARxuufY/16j5t0b8o6h5EeCoEm+mPkY9mwKfn1Rks9t
+         OVHpJShhbir7nWdsdPAYfdSUNmzva8X2LlcX5rwA8sJEtt8wA/KcCkV4RD62zSlY5vWr
+         lMcfiWY9fRvSQT5jjxz7mDMRl1cvZe/t41rOI5OjpyAlITZzrEczpOA9LeeMh+yc8Tu/
+         5WXtKtYnNazszElsMFoofMJ+wTwbvfHXR3BuUUt8Zl4Z5OwPcZofXwx79cBcSHWDcxs7
+         ++Og==
+ARC-Message-Signature: i=2; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=mime-version:content-language:accept-language:message-id:date
+         :thread-index:thread-topic:subject:to:from:dkim-signature;
+        bh=lXXiWEKOerQT50TTLUbkePldDuXFLJNDzCDxegI/iz8=;
+        fh=Ac7cEg0ClBnJVWlt+swPu8M6mDiwOtRnlrrQnqgrNVg=;
+        b=dD7sxQ2J5oqWGjqP6CeDj4uDUQZlNx7PSzwjkCkoUZzRKvuoaROpGARXoPstQzrOv1
+         l5t1BCmutz/6Gx0nLPPiEXeXkuFwSn8y3s4+/XCX+oCx1hI8XCt+1Hu4vaqQP5z4Hihc
+         SG+FwzEmrJncSK2Y49cULXHDt/Dipu+ORp8UAMI2Y0C4XrRTNdLQMV1GJ7AK+1hgXeYD
+         fsOrmiLUCKRjlLR18wSke4rsBPKbJpVnZOewX/nYiES8lOW5IFbKDem+kI1rI4bA5fKD
+         o9CVXAEfQHNSK6FgTAIqHQcxykHEQhWgHmKWRN2cx7dfN/i/NbrTsJzpcbGwRJvpCIx5
+         Bc8w==;
+        dara=google.com
+ARC-Authentication-Results: i=2; mx.google.com;
+       dkim=pass header.i=@OUTLOOK.JP header.s=selector1 header.b=lcfI5Iwi;
+       arc=pass (i=1);
+       spf=pass (google.com: domain of milkyway091@outlook.jp designates 2a01:111:f403:2c16::800 as permitted sender) smtp.mailfrom=milkyway091@outlook.jp;
+       dmarc=pass (p=NONE sp=NONE dis=NONE) header.from=outlook.jp
+Return-Path: <milkyway091@outlook.jp>
+Received: from NAM11-CO1-obe.outbound.protection.outlook.com (mail-co1nam11olkn20800.outbound.protection.outlook.com. [2a01:111:f403:2c16::800])
+        by mx.google.com with ESMTPS id 98e67ed59e1d1-2c2d0e6302asi4085855a91.72.2024.06.09.18.23.56
+        for <ben.webb340@gmail.com>
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Sun, 09 Jun 2024 18:23:56 -0700 (PDT)
+Received-SPF: pass (google.com: domain of milkyway091@outlook.jp designates 2a01:111:f403:2c16::800 as permitted sender) client-ip=2a01:111:f403:2c16::800;
+Authentication-Results: mx.google.com;
+       dkim=pass header.i=@OUTLOOK.JP header.s=selector1 header.b=lcfI5Iwi;
+       arc=pass (i=1);
+       spf=pass (google.com: domain of milkyway091@outlook.jp designates 2a01:111:f403:2c16::800 as permitted sender) smtp.mailfrom=milkyway091@outlook.jp;
+       dmarc=pass (p=NONE sp=NONE dis=NONE) header.from=outlook.jp
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none; b=X5y4OI9kB+wmX3TtZnoyCQluAGICA2WdDoXMmMt1pDK9u2YlDuaC06QkJqsFusA+OFykLDsNjA7blcndg6SPYE3+6CV8FpbOeosSVAoSXQRgA3cqszCMLoCLrAgKkYs7rzY+3n35TxRD9GSjLjyuH/6C8op8cZiDWsp/eDR2jfGH7Z0uJReDDME1Y6HLo+d2dQoUyyW1AKO1uhHuCA2TUTtfgrX5nserSeX9yz0692BrEEuTgbu0A9GVeqH+ZP6tz9VkUeCOnVa1qTG7dywRt0V3vevtlwybW/DPvo8nB4J7Z6TCqzqVwM2B0oh1TaOLRIfL7eG9pC/PWDT1NEmyGg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; s=arcselector9901; h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1; bh=lXXiWEKOerQT50TTLUbkePldDuXFLJNDzCDxegI/iz8=; b=DpDpg8CucIwh30It0hqtktmh85MhjdeJ5WzInIW1E5bq1rSXADHF1sUTWrST44s+dYU/mvaCNUCm/h9xSJttRikOxQcQ1A/EJV9U3vKpZ2LDsskNangDcXsdoL+/5d/imla/tk4vP5NjdPbXzR+94ptBqS689olfQhFs6G5xhCZg6H3JO1GUIDyO8Sa7hslQNmegDdTnT0JWHh1z95KGw1ggIXylCQKJFsnOVvaJJNPdcKES33GGNZ2qAL/FTz0n1Nz56+HawH7JOQ+mZfLqEjVSK1uhrfMYFVZb0K1GLuMEbluZ0mR0wfIKRuxcHF6F0W4r4Ly5C9IaNA74OEldbQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none; dkim=none; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=OUTLOOK.JP; s=selector1; h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck; bh=lXXiWEKOerQT50TTLUbkePldDuXFLJNDzCDxegI/iz8=; b=lcfI5IwiUGQiDMEcRNqpzXf5zpY7nFmRPjQi4UdAipzWevB8zI6WqZFG1rQPrZVj8pSg0L2eZX8KIt0ushoQUUspqV7DVmZGJc+03i0PEpNie6Nj29Ir6ZsRTQBjozPZaG+1EcURC7fLDXtVjetKMjnlozoMwMzv91eY8aHhTrlRz2wkOeKwgQXv4TO3cb21VMkA9/w8IQQaA2cEZWZSph4cE5RzubVVLwPvd05QOuCIAA3+UYy7H1j1J7CY91osOL3YwzeJj+H8H+pKh8plwPQ0GFjTfOrJiVVkPp5glbp6ShRSY1mwlDQUUnfZDBD4QMEeHb/4f7fSQNLfLciQGg==
+Received: from MW4PR11MB7053.namprd11.prod.outlook.com (2603:10b6:303:221::7) by SJ0PR11MB8269.namprd11.prod.outlook.com (2603:10b6:a03:478::22) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7633.36; Mon, 10 Jun 2024 01:23:55 +0000
+Received: from MW4PR11MB7053.namprd11.prod.outlook.com ([fe80::91b2:f271:98b8:e2c1]) by MW4PR11MB7053.namprd11.prod.outlook.com ([fe80::91b2:f271:98b8:e2c1%4]) with mapi id 15.20.7633.036; Mon, 10 Jun 2024 01:23:55 +0000
+From: "百木 和美" <milkyway091@outlook.jp>
+To: Ben Webb <ben.webb340@gmail.com>
+Subject: Hello
+Thread-Topic: Hello
+Thread-Index: AQHautS8fFBH043h4068uJlzv2Q2YQ==
+Date: Mon, 10 Jun 2024 01:23:55 +0000
+Message-ID: <MW4PR11MB7053A4FB5DF68DE0C4046ACD8AC62@MW4PR11MB7053.namprd11.prod.outlook.com>
+Accept-Language: ja-JP, en-US
+Content-Language: ja-JP
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-tmn: [O9TQ1N7nCFpai1O78GoeiOuJE65wOrQ1]
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: MW4PR11MB7053:EE_|SJ0PR11MB8269:EE_
+x-ms-office365-filtering-correlation-id: d4c87ac2-c520-4c2a-c39e-08dc88ebfeac
+x-microsoft-antispam: BCL:0;ARA:14566002|461199019|102099023|3412199016|440099019;
+x-microsoft-antispam-message-info: Kbxb1WbREI4M/Ba7D9xoIJBjlhyfHv0jyFpf40558q3pJRsoto+UcvH2e/1RTugdoyZOTDI7a5BJMLYIpBc+GG9efWE0q84cs3PTU2xavR0Z7eCQD8scfGH44WSOuJikG5qIYm/I9qFxvgVwebt8+vGk2xa7r9ApszQaC51qZaxuHHtUTXvd9dmZPNTe27YIrgMYqAem5Lbe2/jjF6UjnKWDw+b56MiEeg43to7lOoIA0kwoANXCOh0frmv0kjHVMx3qIivN+Fd2mCa6ZXwgwKgZDJfAIFiC3FIb3KsMZPt6eSBX/utsphT/I8HqUK84+NwIxSyPFV8PBACR+MmJHHf8GxJeXcdsv4C/Hz3T5V3ay617/5n4d4N9Q44IrR4malXbpdlam4o8GviMfIq0PAhG7E7loKde+Uh9MgKFn/XAly25StMTQVr1MgROEaBgqQsngikAg02Wcpnp0szuU/McXvxqpGdp1CNT3Ry5lOfFJiJNb1DQK/+8N5jyS96vm+uVsWLKLvJm8SWtKOwH2Igp/mrx25vamMz5TuAKSXwJvTu6zp2ATUhS4RBhAcDp
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: I+/PMVvButZx9I2eSA/z+oVvhCfrl/hCHPBfYO17XKBuYPihVrlGNrQUCuXBsvzln7MwAaUctIZHJPO8pZwdKcZem3hfC/GpbedGJV8nTGGyXwsDrXGXRn5pxH8vrLLM0ZgJd/17kC1qSyiI2gTs8f5JNoRVjPhrP8LtayXnjk0hn7XnSUq/xWEV4T8LTBcF6oqFUjC9NbY18pMUuG/NXQR3zpkv46lOYrVci+VnFBZpGxB/B6+VsUpUwQ3BMtUJfj0S+iF0wgvwXd8CsYa3JMo7wKI+UX8IQDwJ0V3Pjq/V0exMNLG2WnrDNJoFJFTsJ3yT6yAt9DGu+uxMkxAfd4vd3zkbtAm/5pwgAQA4gC5bDi+pPoCczD7WgTKloHxvDlODqPNNrg4d5Avss5qhd8oEtRbk8VCJwRhUaN0vm/fbI5+c/YVHbjWTI2NTvhISyLedebkUPgCb8o9whbsIBspGCgqc1lAKsSqsJVI6PuLTjOAMCC2arnTy2lhMIK4GMETAsdR8KSQjfib1UmoYKswby1gUBwtjjag6MAWvd6r635PYvmMo7PmzZYkXsmFaIzQoOON7TwDA2cnHRDpwIorJS9ikuILpHg74C36QgN7M6djI/WDKVpoWrQONkhr9SctrKRGLH5O8H65tiue/VoA5ymtY6ahBI8+cIJIGRiIBXxvXNFC08PKUFtBtI17oq87jW6ZD8TrcCvaxgVlDNg8wNdEXvmnPXzm2uWQWLc0miVrj9dJC1YZjydTbiDM5CqwdadJpsCrwG6lIWQRHf9yqWZKjFtNWDs9qFS/BN1U/Y6LJyB2No7TAs9T/o3i30WMeOkwjRhaa/rhwLbFHsbEoUBQ4J8TLsLTcCULIRnmaWCycZRZWi5eETMsygxAdhL3VmrDXDhBvuVb+AB0ebPjfD4c69ZaZt0HU9KtxFfRMO6v5WSRy4qtwC1MTD60eu8spfRqdxEgWG0pG6o2lshWh2TMqZGfPxB/ZfvBVJt9TooZM9hFLMKPu5c3Xq3ekkdpb49YloiTdARHVWtjrteIwbQ+dg5dTpNLPLBaAGuEAolLnGRM4h00UbBJcw4KV0VtXzRs1RECIkSJAU9L/OVZbtqHYt5xZNHSyTlnDBs1ICjOgBEmNINmPZCaQ9lyOdbQI6Xnb1npsSOzlEIQGLKH0d3vJ7a5dQmIAMj78b3owRHK/HLcmKvlgF6Bn3IirbM081IfEPEvGmhN5ojrRnj/udDkg7JBOh6ez5dsmYsKvB+nS3G1sZSTv9gBm+ZcJ
+Content-Type: multipart/alternative; boundary="_000_MW4PR11MB7053A4FB5DF68DE0C4046ACD8AC62MW4PR11MB7053namp_"
+MIME-Version: 1.0
+X-OriginatorOrg: sct-15-20-4755-11-msonline-outlook-e8f36.templateTenant
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: MW4PR11MB7053.namprd11.prod.outlook.com
+X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg: 00000000-0000-0000-0000-000000000000
+X-MS-Exchange-CrossTenant-Network-Message-Id: d4c87ac2-c520-4c2a-c39e-08dc88ebfeac
+X-MS-Exchange-CrossTenant-originalarrivaltime: 10 Jun 2024 01:23:55.0887 (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
+X-MS-Exchange-CrossTenant-rms-persistedconsumerorg: 00000000-0000-0000-0000-000000000000
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SJ0PR11MB8269
+
+--_000_MW4PR11MB7053A4FB5DF68DE0C4046ACD8AC62MW4PR11MB7053namp_
+Content-Type: text/plain; charset="iso-2022-jp"
+Content-Transfer-Encoding: quoted-printable
+
+Hi,
+
+What do you want for lunch today?
+
+Thanks,
+Kazumi
+
+--_000_MW4PR11MB7053A4FB5DF68DE0C4046ACD8AC62MW4PR11MB7053namp_
+Content-Type: text/html; charset="iso-2022-jp"
+Content-Transfer-Encoding: quoted-printable
+
+<html>
+<head>
+<meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Diso-2022-=
+jp">
+</head>
+<body>
+<div dir=3D"ltr">
+<div dir=3D"ltr">Hi,</div>
+<div dir=3D"ltr"><br>
+</div>
+<div dir=3D"ltr">What do you want for lunch today?</div>
+<div dir=3D"ltr"><br>
+</div>
+<div dir=3D"ltr">Thanks,</div>
+<div dir=3D"ltr">Kazumi</div>
+<div id=3D"ms-outlook-mobile-signature" dir=3D"ltr">
+<div></div>
+</div>
+</div>
+</body>
+</html>
+
+--_000_MW4PR11MB7053A4FB5DF68DE0C4046ACD8AC62MW4PR11MB7053namp_--
+<<TESTCASE>>
+Hi,
+
+What do you want for lunch today?
+
+Thanks,
+Kazumi
+<<TESTCASE>>
+From: "百木 和美" <milkyway091@outlook.jp>
+///To: Ben Webb <ben.webb340@gmail.com>
+///Subject: Hello
+///Thread-Topic: Hello
+///Thread-Index: AQHautS8fFBH043h4068uJlzv2Q2YQ==
+///Date: Mon, 10 Jun 2024 01:23:55 +0000
+///Message-ID: <MW4PR11MB7053A4FB5DF68DE0C4046ACD8AC62@MW4PR11MB7053.namprd11.prod.outlook.com>
+///Accept-Language: ja-JP, en-US
+///Content-Language: ja-JP

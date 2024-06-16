@@ -36,7 +36,7 @@ func getTestCase(id string) *ParseEmailTestCase {
 }
 
 func loadTestCases() []*ParseEmailTestCase {
-	numTests := 3
+	numTests := 6
 	testCases := make([]*ParseEmailTestCase, 0)
 	for i := 0; i < numTests; i++ {
 		testCases = append(testCases, getTestCase(fmt.Sprintf("email_%v", i)))
@@ -64,6 +64,8 @@ func TestParseEmail(t *testing.T) {
 			}
 			n++
 		}
-		t.Log("case:", i, ", header matches:", fmt.Sprintf("%v/%v", match, n))
+		if match < n {
+			t.Log("case:", i, ", header matches:", fmt.Sprintf("%v/%v", match, n))
+		}
 	}
 }

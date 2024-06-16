@@ -13,6 +13,7 @@ import (
 	emailcache "github.com/webbben/mail-assistant/internal/email_cache"
 	"github.com/webbben/mail-assistant/internal/llama"
 	t "github.com/webbben/mail-assistant/internal/types"
+	emailparse "github.com/webbben/mail-assistant/pkg/email_parse"
 	"google.golang.org/api/gmail/v1"
 )
 
@@ -32,7 +33,15 @@ func ListMessages(srv *gmail.Service, gmailAddr string) ([]*gmail.Message, error
 }
 
 func GetMessage(srv *gmail.Service, gmailAddr string, messageID string) (*gmail.Message, error) {
-	return srv.Users.Messages.Get(gmailAddr, messageID).Do()
+	return srv.Users.Messages.Get(gmailAddr, messageID).Format("raw").Do()
+}
+
+func GetRaw(srv *gmail.Service, gmailAddr string, messageID string) (string, error) {
+	msg, err := srv.Users.Messages.Get(gmailAddr, messageID).Format("raw").Do()
+	if err != nil {
+		return "", err
+	}
+	return decodeRawMessage(msg.Raw)
 }
 
 func GetEmails(srv *gmail.Service, ollamaClient *api.Client, config config.Config) []t.Email {
@@ -107,31 +116,18 @@ func ProcessEmail(srv *gmail.Service, messageID string, emailAddr string) (t.Ema
 		Date:     convInternalDateToTime(msg.InternalDate),
 		ThreadID: msg.ThreadId,
 	}
-	// get headers
-	for _, header := range msg.Payload.Headers {
-		if header.Name == "From" {
-			addr, name := extractEmailAndName(header.Value)
-			email.From = addr
-			email.SenderName = name
-		}
-		if header.Name == "Subject" {
-			email.Subject = header.Value
-		}
-	}
 	// get the email content
-	body := ""
-	for _, part := range msg.Payload.Parts {
-		if part.MimeType == "text/plain" {
-			body = part.Body.Data
-			break
-		}
-	}
-	decoded, err := base64.URLEncoding.DecodeString(body)
+	raw, err := decodeRawMessage(msg.Raw)
 	if err != nil {
 		return email, err
 	}
-	email.Body = string(decoded)
-
+	body, headers, err := emailparse.ParseEmail(raw)
+	if err != nil {
+		return email, err
+	}
+	email.From = headers["From"][0]
+	email.Subject = headers["Subject"][0]
+	email.Body = body
 	return email, nil
 }
 

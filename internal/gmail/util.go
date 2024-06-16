@@ -1,6 +1,7 @@
 package gmail
 
 import (
+	"encoding/base64"
 	"regexp"
 	"strings"
 	"time"
@@ -49,4 +50,12 @@ func isEmailTooOld(email t.Email, config config.Config) bool {
 func isEmailNoReply(email t.Email) bool {
 	sender := strings.ToLower(email.From)
 	return strings.Contains(sender, "noreply") || strings.Contains(sender, "no-reply")
+}
+
+func decodeRawMessage(raw string) (string, error) {
+	bytes, err := base64.URLEncoding.DecodeString(raw)
+	if err != nil {
+		return "", err
+	}
+	return string(bytes), nil
 }

@@ -66,7 +66,15 @@ func main() {
 		email, err := gmail.ProcessEmail(srv, msg.Id, config.GmailAddr)
 		if err != nil {
 			fmt.Println("failed to process email:", err)
-			os.Exit(1)
+			raw, err := gmail.GetRaw(srv, config.GmailAddr, msg.Id)
+			fmt.Println("=====", msg.Id, "=====")
+			if err != nil {
+				fmt.Println("failed to load message:", err)
+			} else {
+				fmt.Println(raw)
+			}
+			util.Continue()
+			continue
 		}
 		from := email.From
 		if email.SenderName != "" {
