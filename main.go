@@ -15,8 +15,8 @@ import (
 	emailcache "github.com/webbben/mail-assistant/internal/email_cache"
 	"github.com/webbben/mail-assistant/internal/gmail"
 	"github.com/webbben/mail-assistant/internal/llama"
-	"github.com/webbben/mail-assistant/internal/openai"
 	"github.com/webbben/mail-assistant/internal/personality"
+	t "github.com/webbben/mail-assistant/internal/types"
 	"github.com/webbben/mail-assistant/internal/util"
 )
 
@@ -101,7 +101,7 @@ func main() {
 			util.SomeoneTalks(p.Name, p.GenPhrase(ollamaClient, "greeting"), util.Hi_blue)
 			fmt.Printf("(To dismiss %s at any time, enter 'q' in the prompt)\n\n", p.Name)
 			for _, email := range emails {
-				emailReply := GetResponseInteractive(email.Body, emailReplyPrompt, ollamaClient, appConfig, p)
+				emailReply := GetResponseInteractive(email, emailReplyPrompt, ollamaClient, appConfig, p)
 				if emailReply == "<<SKIP>>" {
 					emailcache.AddToCache(email, emailcache.IGNORE)
 					continue
@@ -131,9 +131,8 @@ func main() {
 	}
 }
 
-func GetResponseInteractive(message string, basePrompt string, ollamaClient *api.Client, appConfig config.Config, p *personality.Personality) string {
-	prompt := openai.LoadPrompt(p.Prompts.EmailWorkflow, p.Name, appConfig.UserName, message)
-	prompt = p.FormatPrompt(appConfig.UserName, basePrompt, message)
+func GetResponseInteractive(message t.Email, basePrompt string, ollamaClient *api.Client, appConfig config.Config, p *personality.Personality) string {
+	prompt := p.FormatPrompt(appConfig.UserName, basePrompt, message.Body, message.From, message.SenderName, message.Subject)
 	if prompt == "" {
 		debug.Println("no prompt data.")
 		return ""
@@ -185,7 +184,6 @@ func GetResponseInteractive(message string, basePrompt string, ollamaClient *api
 				log.Println("No response parsed; exiting dialog.")
 				break
 			}
-			//util.SomeoneTalks(p.Name, "Shall I send this message?", util.Hi_blue)
 			if util.PromptYN() {
 				return reply
 			}

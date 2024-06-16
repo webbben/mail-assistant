@@ -31,7 +31,7 @@ func TestFormatPrompt(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		out := test.p.FormatPrompt(test.username, test.prompt, test.messageToReply)
+		out := test.p.FormatPrompt(test.username, test.prompt, test.messageToReply, "", "", "")
 		if out != test.expOut {
 			t.Errorf("wrong output. expected: %q\noutput: %q", test.expOut, out)
 		}

@@ -68,6 +68,10 @@ func GetEmails(srv *gmail.Service, ollamaClient *api.Client, config config.Confi
 			debug.Println("failed to process email:", err)
 			continue
 		}
+		// ignore messages that are from ourself
+		if email.From == config.GmailAddr {
+			continue
+		}
 		if isEmailTooOld(email, config) {
 			debug.Println("email too old:", email.Date, email.From)
 			emailcache.AddToCache(email, emailcache.IGNORE, OLD)
