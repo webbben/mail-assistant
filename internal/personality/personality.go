@@ -24,6 +24,7 @@ type Personality struct {
 
 type Prompts struct {
 	EmailWorkflow string `json:"email_workflow"` // prompt for how the email handling workflow and interaction should work.
+	AutoReply     string `json:"autoreply"`      // prompt for handling autoreply messages
 }
 
 func (p Personality) GenPhrase(client *api.Client, phraseKey string) string {
@@ -142,8 +143,7 @@ func NewPersonalitySetup() {
 		p.BasePersonality = input
 		if p.BasePersonality != "" {
 			util.PrintlnColor(util.Gray, "You entered:", p.BasePersonality)
-			fmt.Print("Confirm? ")
-			if !util.PromptYN() {
+			if !util.PromptYN("Confirm?") {
 				p.BasePersonality = ""
 			}
 		}
@@ -180,8 +180,7 @@ func NewPersonalitySetup() {
 	util.PrintlnColor(util.Hi_blue, "Greeting:", p.PhrasePrompts["greeting"])
 	util.PrintlnColor(util.Hi_blue, "Dismiss:", p.PhrasePrompts["dismiss"])
 
-	fmt.Print("Confirm? ")
-	if !util.PromptYN() {
+	if !util.PromptYN("Confirm?") {
 		return
 	}
 

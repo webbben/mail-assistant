@@ -15,6 +15,8 @@ var (
 	Green   = color.New(color.FgGreen)
 	Hi_blue = color.New(color.FgHiBlue)
 	Gray    = color.New(color.FgHiBlack)
+	Magenta = color.New(color.FgMagenta)
+	Cyan    = color.New(color.FgCyan)
 )
 
 // get user input in a conversation
@@ -46,9 +48,15 @@ func IsQuit(s string) bool {
 	return s == "q" || s == "quit" || s == "exit"
 }
 
-// returns true if the user answers Yes
-func PromptYN() bool {
+// asks for Y/N input, and returns true if the user answers Yes.
+func YN() bool {
 	fmt.Print("[Y/N]:")
+	return IsYes(GetUserInput())
+}
+
+// gives a prompt, and asks for Y/N input. returns true if user answers Yes.
+func PromptYN(prompt string) bool {
+	fmt.Print(prompt, "[Y/N]:")
 	return IsYes(GetUserInput())
 }
 
@@ -62,6 +70,14 @@ func SomeoneTalks(name string, statement string, c *color.Color) {
 		c = color.New(color.Reset)
 	}
 	sf := c.SprintFunc()
+	if i := strings.Index(statement, "~~~"); i != -1 {
+		j := strings.LastIndex(statement, "~~~")
+		if j != i {
+			statement = statement[:i] + Magenta.Sprint(statement[i:j+3]) + statement[j+3:]
+		} else {
+			statement = statement[:i] + Magenta.Sprint(statement[i:])
+		}
+	}
 	fmt.Printf(sf("\n%s: %s\n"), name, statement)
 }
 

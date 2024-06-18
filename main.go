@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -18,6 +19,7 @@ import (
 	"github.com/webbben/mail-assistant/internal/personality"
 	t "github.com/webbben/mail-assistant/internal/types"
 	"github.com/webbben/mail-assistant/internal/util"
+	g "google.golang.org/api/gmail/v1"
 )
 
 func loadConfig() (config.Config, error) {
@@ -79,24 +81,23 @@ func main() {
 	}
 
 	util.SomeoneTalks("SYS", "Loading your emails from your inbox. This may take a minute...", util.Gray)
-	// start loop listening for emails
 	for {
 		// check gmail inbox
 		emails := gmail.GetEmails(srv, ollamaClient, appConfig)
-		util.SomeoneTalks("SYS", "Emails found:", util.Gray)
-		for _, email := range emails {
-			fmt.Println("From:", email.From)
-			fmt.Println("Date:", email.Date)
-			fmt.Println("Snippet:", email.Snippet)
-			fmt.Println("Email length:", len(email.Body))
-			fmt.Println("--------------\n", "--------------")
-		}
-		fmt.Print("process?")
-		if !util.PromptYN() {
-			break
+		if len(emails) > 0 {
+			util.SomeoneTalks("SYS", "Emails found:", util.Gray)
+			for _, email := range emails {
+				fmt.Println("From:", email.From)
+				fmt.Println("Date:", email.Date)
+				fmt.Println("Snippet:", email.Snippet)
+				fmt.Println("Email length:", len(email.Body))
+				fmt.Println("--------------")
+			}
+		} else {
+			util.SomeoneTalks("SYS", "No emails found that need processing.", util.Gray)
 		}
 
-		if len(emails) > 0 {
+		if len(emails) > 0 && util.PromptYN("Go through these emails now?") {
 			fmt.Printf("%s enters the room, approaching to convey a message for you.\n", p.Name)
 			util.SomeoneTalks(p.Name, p.GenPhrase(ollamaClient, "greeting"), util.Hi_blue)
 			fmt.Printf("(To dismiss %s at any time, enter 'q' in the prompt)\n\n", p.Name)
@@ -120,14 +121,14 @@ func main() {
 					util.SomeoneTalks("SYS", "email successfully sent to "+email.From, util.Gray)
 				}
 			}
+			util.SomeoneTalks(p.Name, p.GenPhrase(ollamaClient, "dismiss"), util.Hi_blue)
 		}
-		util.SomeoneTalks(p.Name, p.GenPhrase(ollamaClient, "dismiss"), util.Hi_blue)
 
 		emailcache.RemoveOldEntries(appConfig.LookbackDays)
 		if err := emailcache.WriteCacheToDisk(); err != nil {
 			log.Println("failed to write cache:", err)
 		}
-		time.Sleep(time.Minute * 60)
+		waitForNextSummon(srv, appConfig.GmailAddr)
 	}
 }
 
@@ -184,7 +185,7 @@ func GetResponseInteractive(message t.Email, basePrompt string, ollamaClient *ap
 				log.Println("No response parsed; exiting dialog.")
 				break
 			}
-			if util.PromptYN() {
+			if util.PromptYN("Confirm reply?") {
 				return reply
 			}
 			util.SomeoneTalks(p.Name, "Ah, how should I reply then, Monsieur?", util.Hi_blue)
@@ -217,4 +218,46 @@ func parseReplyMessage(content string) string {
 		debug.Println("No reply parsed...")
 	}
 	return reply
+}
+
+// waits for the user to summon the assistant, and checks for new mail while waiting
+func waitForNextSummon(srv *g.Service, gmailAddr string) {
+	input := make(chan string)
+	ticker := time.NewTicker(10 * time.Minute)
+
+	go func() {
+		reader := bufio.NewReader(os.Stdin)
+		util.SomeoneTalks("SYS", "Press the enter key to summon", util.Gray)
+		s, _ := reader.ReadString(' ')
+		input <- s
+	}()
+
+	for {
+		select {
+		case <-ticker.C:
+			// check for new emails
+			newMail, err := checkForNewMail(srv, gmailAddr)
+			if err != nil {
+				log.Fatal(err)
+			}
+			util.SomeoneTalks("SYS", fmt.Sprintf("%v new email(s) waiting to be received.", len(newMail)), util.Gray)
+		case <-input:
+			return
+		}
+	}
+}
+
+// checks if new, unprocessed emails are waiting, and returns their message IDs. If an error occurs while checking gmail API, the error is returned.
+func checkForNewMail(srv *g.Service, addr string) ([]string, error) {
+	newMail := make([]string, 0)
+	list, err := gmail.ListMessages(srv, addr)
+	if err != nil {
+		return nil, err
+	}
+	for _, msg := range list {
+		if _, cached := emailcache.IsCached(msg.Id); !cached {
+			newMail = append(newMail, msg.Id)
+		}
+	}
+	return newMail, nil
 }

@@ -87,8 +87,7 @@ func main() {
 		fmt.Println("~~~")
 		fmt.Println(email.Body)
 		fmt.Println("~~~")
-		fmt.Print("\nContinue? ")
-		if !util.PromptYN() {
+		if !util.PromptYN("\nContinue?") {
 			return
 		}
 	}

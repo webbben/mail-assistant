@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
+	"log"
 	"os"
 	"strconv"
 	"strings"
@@ -55,6 +56,9 @@ func parseCacheLine(line string) (EmailCacheDatum, error) {
 
 // adds an email to the next batch of data to be cached
 func AddToCache(email t.Email, action string, categories ...string) {
+	if err := checkInit(); err != nil {
+		log.Fatal("failed to init cache:", err)
+	}
 	cache[email.ID] = EmailCacheDatum{
 		MessageID:  email.ID,
 		From:       strings.ReplaceAll(email.From, " ", "_"), // just in case some spaces somehow snuck in
@@ -66,6 +70,9 @@ func AddToCache(email t.Email, action string, categories ...string) {
 
 // checks the in-memory cache for the given message ID, and also returns its cache data if found
 func IsCached(messageID string) (EmailCacheDatum, bool) {
+	if err := checkInit(); err != nil {
+		log.Fatal("failed to init cache:", err)
+	}
 	datum, isCached := cache[messageID]
 	return datum, isCached
 }
@@ -105,6 +112,14 @@ func LoadCacheFromDisk() error {
 			return err
 		}
 		cache[datum.MessageID] = datum
+	}
+	return nil
+}
+
+// makes sure the cache has been loaded, and loads it if needed.
+func checkInit() error {
+	if cache == nil {
+		return LoadCacheFromDisk()
 	}
 	return nil
 }
