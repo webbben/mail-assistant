@@ -10,9 +10,13 @@ import (
 	t "github.com/webbben/mail-assistant/internal/types"
 )
 
-// To and From headers in Gmail may be formatted as "First Last <email.addr@gmail.com>"
-// this extracts just the email address portion
+// To and From headers in Gmail may be formatted as "First Last <email.addr@gmail.com>". This extracts the email address and name.
+//
+// Returns: (emailAddress, Name)
 func extractEmailAndName(emailAddrHeader string) (string, string) {
+	if emailAddrHeader == "" {
+		return "", ""
+	}
 	// see if there's a name
 	name := ""
 	pieces := strings.Split(emailAddrHeader, "<")
@@ -49,7 +53,7 @@ func isEmailTooOld(email t.Email, config config.Config) bool {
 
 func isEmailNoReply(email t.Email) bool {
 	sender := strings.ToLower(email.From)
-	return strings.Contains(sender, "noreply") || strings.Contains(sender, "no-reply")
+	return strings.Contains(sender, "noreply") || strings.Contains(sender, "no-reply") || strings.Contains(sender, "donotreply") || strings.Contains(sender, "do-not-reply")
 }
 
 func decodeRawMessage(raw string) (string, error) {

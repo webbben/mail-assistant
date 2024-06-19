@@ -56,7 +56,7 @@ func YN() bool {
 
 // gives a prompt, and asks for Y/N input. returns true if user answers Yes.
 func PromptYN(prompt string) bool {
-	fmt.Print(prompt, "[Y/N]:")
+	fmt.Print(prompt, " [Y/N]:")
 	return IsYes(GetUserInput())
 }
 

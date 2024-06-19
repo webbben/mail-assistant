@@ -80,9 +80,9 @@ func main() {
 		log.Println("failed to load cache:", err)
 	}
 
-	util.SomeoneTalks("SYS", "Loading your emails from your inbox. This may take a minute...", util.Gray)
 	for {
 		// check gmail inbox
+		util.SomeoneTalks("SYS", "Loading your emails from your inbox. This may take a minute...", util.Gray)
 		emails := gmail.GetEmails(srv, ollamaClient, appConfig)
 		if len(emails) > 0 {
 			util.SomeoneTalks("SYS", "Emails found:", util.Gray)
@@ -228,9 +228,11 @@ func waitForNextSummon(srv *g.Service, gmailAddr string) {
 	go func() {
 		reader := bufio.NewReader(os.Stdin)
 		util.SomeoneTalks("SYS", "Press the enter key to summon", util.Gray)
-		s, _ := reader.ReadString(' ')
+		s, _ := reader.ReadString('\n')
 		input <- s
 	}()
+
+	newMailCount := 0
 
 	for {
 		select {
@@ -238,9 +240,13 @@ func waitForNextSummon(srv *g.Service, gmailAddr string) {
 			// check for new emails
 			newMail, err := checkForNewMail(srv, gmailAddr)
 			if err != nil {
-				log.Fatal(err)
+				log.Println("error checking for new mail:", err)
+				continue
 			}
-			util.SomeoneTalks("SYS", fmt.Sprintf("%v new email(s) waiting to be received.", len(newMail)), util.Gray)
+			if len(newMail) > newMailCount {
+				newMailCount = len(newMail)
+				util.SomeoneTalks("SYS", fmt.Sprintf("%v new email(s) waiting to be received.", len(newMail)), util.Gray)
+			}
 		case <-input:
 			return
 		}

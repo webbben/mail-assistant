@@ -129,7 +129,9 @@ func ProcessEmail(srv *gmail.Service, messageID string, emailAddr string) (t.Ema
 	if err != nil {
 		return email, err
 	}
-	email.From = headers["From"][0]
+	from, sender := extractEmailAndName(headers["From"][0])
+	email.From = from
+	email.SenderName = sender
 	email.Subject = headers["Subject"][0]
 	email.Body = body
 	return email, nil
