@@ -3,3 +3,4 @@ cred/*
 emailcache
 personality/*.json
 !personality/default.json
+log.txt
