@@ -11,7 +11,6 @@ import (
 	"github.com/webbben/mail-assistant/internal/config"
 	"github.com/webbben/mail-assistant/internal/debug"
 	emailcache "github.com/webbben/mail-assistant/internal/email_cache"
-	"github.com/webbben/mail-assistant/internal/llama"
 	t "github.com/webbben/mail-assistant/internal/types"
 	emailparse "github.com/webbben/mail-assistant/pkg/email_parse"
 	"google.golang.org/api/gmail/v1"
@@ -101,10 +100,10 @@ func isJunk(email t.Email, ollamaClient *api.Client) (bool, string) {
 		debug.Println("no reply email:", email.From)
 		return true, NOREPLY
 	}
-	if llama.IsEmailSpam(ollamaClient, email.Body) {
-		debug.Println("spam email:", email.From, email.Snippet)
-		return true, SPAM
-	}
+	//if isSpam, _ := llama.IsEmailSpam(ollamaClient, email.Body); isSpam {
+	//	debug.Println("spam email:", email.From, email.Snippet)
+	//	return true, SPAM
+	//}
 	return false, ""
 }
 

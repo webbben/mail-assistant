@@ -1,0 +1,9 @@
+FALSE
+<<TESTCASE>>
+Greetings,
+
+This is a reminder that we are meeting next in Jun 20th, 70 BC, NOT June 20th 476 AD, as Jim's time machine has broken down again.
+Use this also as a friendly reminder to always check your hydrogen deposits before starting the fusion reactor!
+
+Alicia,
+Time Travel Hobbyist Association

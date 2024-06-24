@@ -1,0 +1,58 @@
+TRUE
+<<TESTCASE>>
+You have 1 new message
+
+.....................................
+
+Bob Smith (Data Science at Snowflake)
+(https://www.linkedin.com/in/bobsmith)
+
+View message: https://www.linkedin.com/comm/messaging/thread/2-ZDc1MzA5MTMt=
+ZWM5OC00YzYxLTlmMTctNjQwODdkYTg0MmNmXzAxMA=3D=3D?lipi=3Durn%3Ali%3Apage%3Ae=
+mail_email_member_message_v2%3BLSErpz%2ByRZKXlqma1Ki4ZQ%3D%3D&midToken=3DAQ=
+GcnYYev0xbtw&midSig=3D1dXJasUuPt_Xg1&trk=3Deml-email_member_message_v2-one_=
+to_one_single_thread_text-0-reply_to_sender&trkEmail=3Deml-email_member_mes=
+sage_v2-one_to_one_single_thread_text-0-reply_to_sender-null-8q3q2p~lxeeaf3=
+g~5z-null-null&eid=3D8q3q2p-lxeeaf3g-5z&otpToken=3DMTcwNzE5ZTUxNTJkYzhjY2Ix=
+MjQwNGVkNDcxNmU0YjE4ZWM2ZDM0MTlhYWQ4NzYxNzZjZTAyNmE0OTU4NThmN2Y1ZDdkZmFhNDl=
+jNGRjZmMwMWZiZjI4NTlmMTc0NWJjN2I2ZmJhYjdkYTRlZjQ2NTJkZGU2MCwxLDE%3D
+ =20
+ =20
+
+.....................................
+}
+     =20
+
+----------------------------------------
+
+This email was intended for Benjamin Webb (Software Engineer)
+Learn why we included this: https://www.linkedin.com/help/linkedin/answer/4=
+788?lang=3Den&lipi=3Durn%3Ali%3Apage%3Aemail_email_member_message_v2%3BLSEr=
+pz%2ByRZKXlqma1Ki4ZQ%3D%3D&midToken=3DAQGcnYYev0xbtw&midSig=3D1dXJasUuPt_Xg=
+1&trk=3Deml-email_member_message_v2-SecurityHelp-0-textfooterglimmer&trkEma=
+il=3Deml-email_member_message_v2-SecurityHelp-0-textfooterglimmer-null-8q3q=
+2p~lxeeaf3g~5z-null-null&eid=3D8q3q2p-lxeeaf3g-5z&otpToken=3DMTcwNzE5ZTUxNT=
+JkYzhjY2IxMjQwNGVkNDcxNmU0YjE4ZWM2ZDM0MTlhYWQ4NzYxNzZjZTAyNmE0OTU4NThmN2Y1Z=
+DdkZmFhNDljNGRjZmMwMWZiZjI4NTlmMTc0NWJjN2I2ZmJhYjdkYTRlZjQ2NTJkZGU2MCwxLDE%=
+3D
+You are receiving Messages digest emails.
+
+Unsubscribe: https://www.linkedin.com/comm/psettings/email-unsubscribe?lipi=
+=3Durn%3Ali%3Apage%3Aemail_email_member_message_v2%3BLSErpz%2ByRZKXlqma1Ki4=
+ZQ%3D%3D&midToken=3DAQGcnYYev0xbtw&midSig=3D1dXJasUuPt_Xg1&trk=3Deml-email_=
+member_message_v2-unsubscribe-0-textfooterglimmer&trkEmail=3Deml-email_memb=
+er_message_v2-unsubscribe-0-textfooterglimmer-null-8q3q2p~lxeeaf3g~5z-null-=
+null&eid=3D8q3q2p-lxeeaf3g-5z&loid=3DAQEWFKpsIvNmbAAAAZAVwB0ny-LZVWavqLRu3s=
+P8Xb2ym5UyMOft19eoe9yzgj1iKLq92prLqYk2HePKPgPUkcpxxwQaOvnLsw
+Help: https://www.linkedin.com/help/linkedin/answer/67?lang=3Den&lipi=3Durn=
+%3Ali%3Apage%3Aemail_email_member_message_v2%3BLSErpz%2ByRZKXlqma1Ki4ZQ%3D%=
+3D&midToken=3DAQGcnYYev0xbtw&midSig=3D1dXJasUuPt_Xg1&trk=3Deml-email_member=
+_message_v2-help-0-textfooterglimmer&trkEmail=3Deml-email_member_message_v2=
+-help-0-textfooterglimmer-null-8q3q2p~lxeeaf3g~5z-null-null&eid=3D8q3q2p-lx=
+eeaf3g-5z&otpToken=3DMTcwNzE5ZTUxNTJkYzhjY2IxMjQwNGVkNDcxNmU0YjE4ZWM2ZDM0MT=
+lhYWQ4NzYxNzZjZTAyNmE0OTU4NThmN2Y1ZDdkZmFhNDljNGRjZmMwMWZiZjI4NTlmMTc0NWJjN=
+2I2ZmJhYjdkYTRlZjQ2NTJkZGU2MCwxLDE%3D
+
+=C2=A9 2024 LinkedIn Corporation, 1zwnj000 West Maude Avenue, Sunnyvale, CA=
+ 94085.
+LinkedIn and the LinkedIn logo are registered trademarks of LinkedIn.

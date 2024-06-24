@@ -1,0 +1,11 @@
+somedude@gmail.com
+<<TESTCASE>>
+Mapo Tofu
+<<TESTCASE>>
+Hi there,
+
+I wanted to ask your opinion of mapo tofu. Do you like it? I don't really like it, and am trying to start a campaign against it, so I'd like your support.
+
+Thanks!
+<<TESTCASE>>
+TRUE

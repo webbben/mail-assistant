@@ -1,0 +1,19 @@
+TRUE
+<<TESTCASE>>
+1 new item in your Stack Exchange inbox
+    # Some headers missing from net/mail parsed email
+    ### answer | Jun 13 at 4:50
+   =20
+    Mail header fields are case-insensitive and Get is aware of this. Your =
+code instead seems to insi...
+    ---------------------------------------------
+See all of your inbox items:https://stackexchange.com/users/26923103?tab=3D=
+inbox
+
+
+Edit email settings: https://email.stackoverflow.com/subscriptions/manage?i=
+d=3Df69583d1259140d8810cab430f187d2c&auth=3DFUOdGSV5NQ_mZ_G0pFA9sCByMkic94N=
+r6vwVrMe5xQyfmdux7UoZHx6bHMQN7KQBf1sWro8G7F5MikWIm9ZwPQ2
+Contact us: https://stackoverflow.co/company/contact/
+Privacy: https://stackoverflow.com/legal/privacy-policy
+Stack Overflow, 14 Wall Street, 20th Floor, New York, NY 10005 <3

@@ -5,5 +5,26 @@
     "inbox_check_freq": 60,
     "email_batch_limit": 5,
     "lookback_days": 10,
-    "debug": true
+    "debug": true,
+    "auto_reply": {
+        "enabled": false,
+        "categories": [
+            "mapo tofu",
+            "anything from people at Blacsand, the software company I work at",
+            "unpaid debts, or people asking for money"
+        ],
+        "instructions": [
+            [
+                "If the message is anything negative about mapo tofu, whole-heartedly disagree and tell them the merits of mapo tofu.",
+                "If the message is positive about mapo tofu, agree with them and say some more good things about it."
+            ],
+            [
+                "Remind the person that I will be out of office until August 15th, 2035, living in a remote region of the Congo jungle.",
+                "If the message is asking about the Hamu project, refer them to reach out to Mr Squeaks, head engineer in my absense."
+            ],
+            [
+                "Tell them that they must have the wrong guy, as I surely don't have any debts or other unpaid expenses."
+            ]
+        ]
+    }
 }

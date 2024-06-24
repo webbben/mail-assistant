@@ -1,0 +1,9 @@
+FALSE
+<<TESTCASE>>
+Hi there,
+
+Just checking in on the project we discussed last week. Any thoughts?
+Let's chat again this week to figure out the next steps.
+
+Thanks,
+John

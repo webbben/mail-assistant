@@ -1,0 +1,15 @@
+TRUE
+<<TESTCASE>>
+Your eyes do not deceive you: this is a newsletter from Fly.io. We've talke=
+d about it for years but never got around to it.
+
+For whatever reason, we've been doing a lot of things that our users might =
+care about, and then not telling them. Since that's a popular way to kill a=
+ startup, we're putting an end to that.
+
+We're aiming for doing at most one of these per month. We're still dialing =
+in the content, but we're pretty confident we can get to a place where even=
+ our most cynical users (yes, you, Jeff) will find something they like.
+
+Actual humans are writing this, so if you've got questions or something to =
+say, just reply here.

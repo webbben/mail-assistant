@@ -6,8 +6,10 @@ import (
 	"log"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/fatih/color"
+	"github.com/inancgumus/screen"
 )
 
 var (
@@ -94,4 +96,26 @@ func PrintfColor(c *color.Color, s string, a ...any) {
 func Continue() {
 	fmt.Print("Press Enter to continue...")
 	bufio.NewReader(os.Stdin).ReadString('\n')
+}
+
+func ClearScreen() {
+	screen.Clear()
+	screen.MoveTopLeft()
+}
+
+// inserts all values in a map into the given string.
+// the map will have keys like "key" and the string will have tokens like "<<KEY>>", and "<<KEY>>" will get replaced by the value mapped to "key".
+func InsertMappedValues(s string, dict map[string]string) string {
+	if dict == nil {
+		return s
+	}
+	for key, val := range dict {
+		key = "<<" + strings.ToUpper(key) + ">>"
+		s = strings.ReplaceAll(s, key, val)
+	}
+	return s
+}
+
+func CurrentTime() string {
+	return time.Now().Local().Format(time.Kitchen)
 }

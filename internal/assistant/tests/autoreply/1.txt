@@ -1,0 +1,12 @@
+somedude@gmail.com
+<<TESTCASE>>
+Lunch on Saturday
+<<TESTCASE>>
+Hey!
+
+Wanna go out for lunch on Saturday? I was thinking we could go to this new Chinese restaurant - I heard they have good mapo tofu.
+Let me know if you're free.
+
+-Dave
+<<TESTCASE>>
+TRUE

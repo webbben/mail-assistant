@@ -1,15 +1,13 @@
 package main
 
 import (
-	"bufio"
 	"encoding/json"
 	"fmt"
 	"log"
 	"os"
 	"strings"
-	"time"
 
-	"github.com/ollama/ollama/api"
+	"github.com/webbben/mail-assistant/internal/assistant"
 	auth "github.com/webbben/mail-assistant/internal/auth"
 	"github.com/webbben/mail-assistant/internal/config"
 	"github.com/webbben/mail-assistant/internal/debug"
@@ -17,9 +15,7 @@ import (
 	"github.com/webbben/mail-assistant/internal/gmail"
 	"github.com/webbben/mail-assistant/internal/llama"
 	"github.com/webbben/mail-assistant/internal/personality"
-	t "github.com/webbben/mail-assistant/internal/types"
 	"github.com/webbben/mail-assistant/internal/util"
-	g "google.golang.org/api/gmail/v1"
 )
 
 func loadConfig() (config.Config, error) {
@@ -82,6 +78,7 @@ func main() {
 
 	for {
 		// check gmail inbox
+		util.ClearScreen()
 		util.SomeoneTalks("SYS", "Loading your emails from your inbox. This may take a minute...", util.Gray)
 		emails := gmail.GetEmails(srv, ollamaClient, appConfig)
 		if len(emails) > 0 {
@@ -98,11 +95,12 @@ func main() {
 		}
 
 		if len(emails) > 0 && util.PromptYN("Go through these emails now?") {
+			util.ClearScreen()
 			fmt.Printf("%s enters the room, approaching to convey a message for you.\n", p.Name)
 			util.SomeoneTalks(p.Name, p.GenPhrase(ollamaClient, "greeting"), util.Hi_blue)
 			fmt.Printf("(To dismiss %s at any time, enter 'q' in the prompt)\n\n", p.Name)
 			for _, email := range emails {
-				emailReply := GetResponseInteractive(email, emailReplyPrompt, ollamaClient, appConfig, p)
+				emailReply := assistant.GetResponseInteractive(email, emailReplyPrompt, ollamaClient, appConfig, p)
 				if emailReply == "<<SKIP>>" {
 					emailcache.AddToCache(email, emailcache.IGNORE)
 					continue
@@ -120,6 +118,7 @@ func main() {
 					emailcache.AddToCache(email, emailcache.REPLY)
 					util.SomeoneTalks("SYS", "email successfully sent to "+email.From, util.Gray)
 				}
+				util.ClearScreen()
 			}
 			util.SomeoneTalks(p.Name, p.GenPhrase(ollamaClient, "dismiss"), util.Hi_blue)
 		}
@@ -128,142 +127,6 @@ func main() {
 		if err := emailcache.WriteCacheToDisk(); err != nil {
 			log.Println("failed to write cache:", err)
 		}
-		waitForNextSummon(srv, appConfig.GmailAddr)
+		assistant.WaitForNextSummon(srv, ollamaClient, appConfig, *p)
 	}
-}
-
-func GetResponseInteractive(message t.Email, basePrompt string, ollamaClient *api.Client, appConfig config.Config, p *personality.Personality) string {
-	prompt := p.FormatPrompt(appConfig.UserName, basePrompt, message.Body, message.From, message.SenderName, message.Subject)
-	if prompt == "" {
-		debug.Println("no prompt data.")
-		return ""
-	}
-	messages := []api.Message{
-		{
-			Role:    "system",
-			Content: prompt,
-		},
-	}
-	messages, err := llama.ChatCompletion(ollamaClient, messages)
-	if err != nil {
-		log.Println("failed to generate chat completion:", err)
-		return ""
-	}
-	if len(messages) == 0 {
-		debug.Println("unexpected empty output from AI API")
-		return ""
-	}
-	util.SomeoneTalks(p.Name, messages[len(messages)-1].Content, util.Hi_blue)
-
-	reply := ""
-	for {
-		response := util.GetUserInput()
-		if util.IsQuit(response) {
-			return "<<QUIT>>"
-		}
-		messages = append(messages, api.Message{
-			Role:    "user",
-			Content: response,
-		})
-		messages, err = llama.ChatCompletion(ollamaClient, messages)
-		if err != nil {
-			log.Println("failed to generate chat completion:", err)
-			return ""
-		}
-		content := messages[len(messages)-1].Content
-
-		if strings.Contains(content, "<<<IGNORE>>>") {
-			util.SomeoneTalks(p.Name, p.GenPhrase(ollamaClient, "ignore"), util.Hi_blue)
-			return "<<SKIP>>"
-		}
-		util.SomeoneTalks(p.Name, content, util.Hi_blue)
-
-		if strings.Contains(content, "~~~") {
-			// A reply draft is in the output
-			reply := parseReplyMessage(content)
-			if reply == "" {
-				log.Println("No response parsed; exiting dialog.")
-				break
-			}
-			if util.PromptYN("Confirm reply?") {
-				return reply
-			}
-			util.SomeoneTalks(p.Name, "Ah, how should I reply then, Monsieur?", util.Hi_blue)
-		}
-	}
-	return reply
-}
-
-func parseReplyMessage(content string) string {
-	replyParts := strings.Split(content, "~~~")
-	reply := ""
-	if len(replyParts) == 0 {
-		debug.Println("No ~~~ found in content. Are you sure there should be a reply?")
-		return ""
-	}
-	if len(replyParts) > 3 {
-		debug.Println("too many ~~~ found... the content must be incorrectly formatted.")
-	}
-	// we expect the message to be wrapped inside ~~~
-	if len(replyParts) >= 2 {
-		reply = replyParts[1]
-	}
-	// if not found, look through all parts for the first appearance of text.
-	if reply == "" {
-		for _, part := range replyParts {
-			if part != "" {
-				return part
-			}
-		}
-		debug.Println("No reply parsed...")
-	}
-	return reply
-}
-
-// waits for the user to summon the assistant, and checks for new mail while waiting
-func waitForNextSummon(srv *g.Service, gmailAddr string) {
-	input := make(chan string)
-	ticker := time.NewTicker(10 * time.Minute)
-
-	go func() {
-		reader := bufio.NewReader(os.Stdin)
-		util.SomeoneTalks("SYS", "Press the enter key to summon", util.Gray)
-		s, _ := reader.ReadString('\n')
-		input <- s
-	}()
-
-	newMailCount := 0
-
-	for {
-		select {
-		case <-ticker.C:
-			// check for new emails
-			newMail, err := checkForNewMail(srv, gmailAddr)
-			if err != nil {
-				log.Println("error checking for new mail:", err)
-				continue
-			}
-			if len(newMail) > newMailCount {
-				newMailCount = len(newMail)
-				util.SomeoneTalks("SYS", fmt.Sprintf("%v new email(s) waiting to be received.", len(newMail)), util.Gray)
-			}
-		case <-input:
-			return
-		}
-	}
-}
-
-// checks if new, unprocessed emails are waiting, and returns their message IDs. If an error occurs while checking gmail API, the error is returned.
-func checkForNewMail(srv *g.Service, addr string) ([]string, error) {
-	newMail := make([]string, 0)
-	list, err := gmail.ListMessages(srv, addr)
-	if err != nil {
-		return nil, err
-	}
-	for _, msg := range list {
-		if _, cached := emailcache.IsCached(msg.Id); !cached {
-			newMail = append(newMail, msg.Id)
-		}
-	}
-	return newMail, nil
 }

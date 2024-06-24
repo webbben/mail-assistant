@@ -10,6 +10,7 @@ import (
 	"github.com/ollama/ollama/api"
 	"github.com/webbben/mail-assistant/internal/llama"
 	"github.com/webbben/mail-assistant/internal/openai"
+	t "github.com/webbben/mail-assistant/internal/types"
 	"github.com/webbben/mail-assistant/internal/util"
 )
 
@@ -195,24 +196,21 @@ func NewPersonalitySetup() {
 	fmt.Println("Next steps: find your personality JSON and set the paths to the prompt text file you want to use. Then, to use this personality, set it in your config.json.")
 }
 
-func (p Personality) FormatPrompt(Username, prompt, messageToReply, from, senderName, subject string) string {
-	output := prompt
+func (p Personality) FormatPrompt(Username, prompt string, email t.Email) string {
 	if p.InsertDict == nil {
 		p.InsertDict = make(map[string]string)
 	}
 	p.InsertDict["user-name"] = Username
 	p.InsertDict["ai-name"] = p.Name
-	p.InsertDict["from"] = from
-	if senderName != "" {
-		p.InsertDict["from"] += "(" + senderName + ")"
+	p.InsertDict["base-personality"] = p.BasePersonality
+	p.InsertDict["from"] = email.From
+	if email.SenderName != "" {
+		p.InsertDict["from"] += "(" + email.SenderName + ")"
 	}
-	p.InsertDict["subject"] = subject
-	for key, val := range p.InsertDict {
-		key = "<<" + strings.ToUpper(key) + ">>"
-		output = strings.ReplaceAll(output, key, val)
-	}
-	if messageToReply != "" {
-		output = fmt.Sprintf(output, messageToReply)
+	p.InsertDict["subject"] = email.Subject
+	output := util.InsertMappedValues(prompt, p.InsertDict)
+	if email.Body != "" {
+		output = fmt.Sprintf(output, email.Body)
 	}
 	return output
 }
