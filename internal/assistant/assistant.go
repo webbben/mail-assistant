@@ -123,7 +123,6 @@ func WaitForNextSummon(srv *g.Service, client *api.Client, config config.Config,
 	}()
 
 	newMailCount := 0
-	arProcessed := make(map[string]bool)
 
 	util.ClearScreen()
 
@@ -138,15 +137,12 @@ func WaitForNextSummon(srv *g.Service, client *api.Client, config config.Config,
 			}
 			// use auto-reply if enabled and applicable to the new emails
 			if len(newMail) > 0 && config.AutoReply.Enabled {
-				for _, msgID := range newMail {
-					if arProcessed[msgID] {
-						continue
-					}
-					arProcessed[msgID] = true
-					err := autoReplyMessage(client, srv, msgID, config, p)
-					if err != nil {
-						log.Println("failed to autoreply:", err)
-					}
+				// only auto reply one email every tick, just so not too many emails are sent out at once
+				// just a random mitigation measure against unexpected bugs or bad behavior, since one bad auto-reply email is better than 100.
+				msgID := newMail[0]
+				err := autoReplyMessage(client, srv, msgID, config, p)
+				if err != nil {
+					log.Println("failed to autoreply:", err)
 				}
 			}
 			if len(newMail) > newMailCount {
@@ -165,7 +161,7 @@ func autoReplyMessage(client *api.Client, srv *g.Service, msgID string, config c
 	if err != nil {
 		return err
 	}
-	reply, err := AutoReply(client, email, config.UserName, p, config.AutoReply.Categories, config.AutoReply.Instructions)
+	reply, err, _ := AutoReply(client, email, config.UserName, p, config.AutoReply.Categories, config.AutoReply.Instructions)
 	if err != nil {
 		return err
 	}
@@ -175,6 +171,7 @@ func autoReplyMessage(client *api.Client, srv *g.Service, msgID string, config c
 	if !util.PromptYN("Do you want to autoreply to " + email.From + "?") {
 		return nil
 	}
+	emailcache.AddToCache(email, emailcache.REPLY)
 	util.SomeoneTalks("SYS", fmt.Sprintf("(%s) Auto reply sent to %s", util.CurrentTime(), email.From), util.Gray)
 	return gmail.SendReply(srv, config.GmailAddr, email, reply)
 }
@@ -194,11 +191,11 @@ func checkForNewMail(srv *g.Service, addr string) ([]string, error) {
 	return newMail, nil
 }
 
-func AutoReply(client *api.Client, email types.Email, username string, p personality.Personality, categories []string, instructions [][]string) (string, error) {
+func AutoReply(client *api.Client, email types.Email, username string, p personality.Personality, categories []string, instructions [][]string) (string, error, []int) {
 	// first, detect if the given email is related to the auto reply categories, and output which one it is related to.
 	cats := getEmailCategories(client, email, categories)
 	if cats[0] == 0 {
-		return "", nil
+		return "", nil, cats
 	}
 	instr := make([]string, 0)
 	for _, cat := range cats {
@@ -208,9 +205,9 @@ func AutoReply(client *api.Client, email types.Email, username string, p persona
 	prompt := formatARReplyPrompt(p.BasePersonality, username, p.Name, instr)
 	s, err := llama.GenerateCompletion(client, prompt, email.String())
 	if err != nil {
-		return "", err
+		return "", err, cats
 	}
-	return s, nil
+	return s, nil, cats
 }
 
 const ARReplyForCategory = `
@@ -238,7 +235,7 @@ func formatARReplyPrompt(basePersonality string, username string, aiName string,
 const ARCategoryPrompt = `
 You are a robot that only outputs numbers from 0 to <<N>>.
 You will be given a message, and you will determine if it falls into any of the following categories. Output the number of the category it falls into, or 0 if none apply.
-If more than one apply, you can output more than one number, separated by commas. Only choose a category if you are very confident about it.
+If more than one apply, you can output more than one number, separated by commas. Only choose a category if you are 100 percent sure about it.
 
 Sample outputs:
 0
@@ -277,7 +274,7 @@ func getEmailCategories(client *api.Client, email types.Email, categories []stri
 	}
 	parsedInts := make([]int, 0)
 	for _, num := range nums {
-		v, err := strconv.Atoi(num)
+		v, err := strconv.Atoi(strings.TrimSpace(num))
 		if err != nil {
 			log.Println("error parsing int:", err)
 			return []int{0}

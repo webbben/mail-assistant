@@ -7,6 +7,7 @@ import (
 	"math"
 	"os"
 	"slices"
+	"strconv"
 	"strings"
 	"testing"
 
@@ -18,6 +19,7 @@ import (
 type AutoReplyTestCase struct {
 	email       types.Email
 	shouldReply bool
+	categories  []int
 }
 
 func getTestCase(filename string) *AutoReplyTestCase {
@@ -33,11 +35,20 @@ func getTestCase(filename string) *AutoReplyTestCase {
 		Body:    sections[2],
 	}
 	testCase.shouldReply = strings.TrimSpace(sections[3]) == "TRUE"
+	testCase.categories = make([]int, 0)
+	for _, catString := range strings.Split(sections[4], ",") {
+		clean := strings.TrimSpace(catString)
+		num, err := strconv.Atoi(clean)
+		if err != nil {
+			log.Fatal("failed to parse category int")
+		}
+		testCase.categories = append(testCase.categories, num)
+	}
 	return testCase
 }
 
 func loadTestCases() []*AutoReplyTestCase {
-	numTests := 2
+	numTests := 8
 	testCases := make([]*AutoReplyTestCase, 0)
 	for i := 0; i < numTests; i++ {
 		testCases = append(testCases, getTestCase(fmt.Sprintf("%v.txt", i)))
@@ -68,7 +79,7 @@ func TestAutoReply(t *testing.T) {
 	}
 
 	categories := []string{
-		"Work at Epic; The \"hamu\" project",
+		"The company Epic, and software engineering.",
 		"Mapo tofu",
 		"Anything related to debts or unpaid expenses",
 	}
@@ -95,19 +106,26 @@ func TestAutoReply(t *testing.T) {
 
 	for i, test := range tests {
 		logString := fmt.Sprintf("==========\n   CASE %v\n==========\nEMAIL:\n%s", i, test.email)
-		out, err := AutoReply(client, test.email, "Ben Webb", test_p, categories, instructions)
+		out, err, cats := AutoReply(client, test.email, "Ben Webb", test_p, categories, instructions)
 		if err != nil {
 			t.Errorf("case: %v, error occurred: %s", i, err)
 		}
-		logString += fmt.Sprintf("\n----------\nREPLY:\n%s\n==========", out)
+		logString += fmt.Sprintf("\n----------\nREPLY:\n%s\n----------", out)
+		logString += fmt.Sprintf("\nDetected categories:\n")
+		for _, cat := range cats {
+			if cat == 0 {
+				logString += "[0] None\n"
+				break
+			}
+			logString += fmt.Sprintf("* [%v] \"%s\"\n", cat, categories[cat-1])
+		}
 		outputLogs = append(outputLogs, logString)
 		if out != "" {
-			if test.shouldReply {
+			if test.shouldReply && fmt.Sprint(cats) == fmt.Sprint(test.categories) {
 				pass++
-			} else {
+			} else if !test.shouldReply {
 				falsePositive++
-				t.Errorf("case: %v, output response when not supposed to.", i)
-				t.Log(out)
+				t.Errorf("case: %v, output response when not supposed to. see log.txt for details.", i)
 			}
 			if !strings.Contains(out, "~~~") {
 				t.Logf("case: %v, output is invalid format (missing ~~~)", i)
@@ -120,6 +138,9 @@ func TestAutoReply(t *testing.T) {
 			} else {
 				pass++
 			}
+		}
+		if fmt.Sprint(cats) != fmt.Sprint(test.categories) {
+			t.Errorf("case: %v, category mismatch. exp: %v, got: %v", i, test.categories, cats)
 		}
 	}
 	t.Logf("Pass: %v/%v (%v%%)", pass, len(tests), math.Round(float64(pass)/float64(len(tests))*100))

@@ -9,3 +9,5 @@ I wanted to ask your opinion of mapo tofu. Do you like it? I don't really like i
 Thanks!
 <<TESTCASE>>
 TRUE
+<<TESTCASE>>
+2

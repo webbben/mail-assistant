@@ -1,0 +1,9 @@
+no-reply@unlinked.com
+<<TESTCASE>>
+You have unread messages
+<<TESTCASE>>
+Phil, you have 3 unread messages awaiting your reply. Log in to see more details.
+<<TESTCASE>>
+FALSE
+<<TESTCASE>>
+0

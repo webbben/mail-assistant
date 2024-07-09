@@ -19,6 +19,7 @@ const (
 )
 
 var cache map[string]EmailCacheDatum = make(map[string]EmailCacheDatum)
+var unsavedChanges int
 
 type EmailCacheDatum struct {
 	MessageID  string
@@ -66,6 +67,7 @@ func AddToCache(email t.Email, action string, categories ...string) {
 		Action:     action,
 		Categories: strings.Join(categories, ";"),
 	}
+	unsavedChanges++
 }
 
 // checks the in-memory cache for the given message ID, and also returns its cache data if found
@@ -79,6 +81,9 @@ func IsCached(messageID string) (EmailCacheDatum, bool) {
 
 // writes the current data in the in-memory cache to the disk, overwriting any previous data in the file
 func WriteCacheToDisk() error {
+	if unsavedChanges == 0 {
+		return nil
+	}
 	file, err := os.OpenFile("emailcache", os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
 	if err != nil {
 		return err
@@ -92,6 +97,7 @@ func WriteCacheToDisk() error {
 			return err
 		}
 	}
+	unsavedChanges = 0
 	return writer.Flush()
 }
 
@@ -113,6 +119,7 @@ func LoadCacheFromDisk() error {
 		}
 		cache[datum.MessageID] = datum
 	}
+	unsavedChanges = 0
 	return nil
 }
 

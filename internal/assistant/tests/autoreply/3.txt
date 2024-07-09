@@ -1,0 +1,22 @@
+chefman@somerestaurant.com
+<<TESTCASE>>
+Menu Survey
+<<TESTCASE>>
+Hi there!
+
+We've recently released a new menu, and want your feedback. If any of the following dishes interest you, could you reply back so we can follow up?
+
+Menu:
+- Roast Chicken
+- Tacos
+- Beef Stew
+- Apple pie 
+
+Thank you, and we look forward to having you back at our restaurant.
+
+Yours,
+Head Chef James
+<<TESTCASE>>
+FALSE
+<<TESTCASE>>
+0

@@ -1,0 +1,16 @@
+hr@startup.com
+<<TESTCASE>>
+Interview Results
+<<TESTCASE>>
+Hi,
+
+Thanks for meeting with us yesterday, it was a pleasure to speak with you.
+We'd like to proceed to the next step of the hiring process, and invite you to an interview with our CEO.
+Could you respond with a few time slots in the next week that would work for you?
+
+Thanks,
+Adam
+<<TESTCASE>>
+FALSE
+<<TESTCASE>>
+0

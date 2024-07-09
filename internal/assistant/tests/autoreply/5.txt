@@ -1,0 +1,15 @@
+hr@closedai.com
+<<TESTCASE>>
+Interview Results
+<<TESTCASE>>
+Hello,
+
+Thank you for your interest in the Lead Lunch Getter Engineer position. Unfortunately, we've made the difficult decision to move on with another candidate.
+Feel free to stay in contact for future positions at ClosedAI.
+
+Thank you,
+HR
+<<TESTCASE>>
+FALSE
+<<TESTCASE>>
+0

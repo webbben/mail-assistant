@@ -10,3 +10,5 @@ Let me know if you're free.
 -Dave
 <<TESTCASE>>
 TRUE
+<<TESTCASE>>
+2
