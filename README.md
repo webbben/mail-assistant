@@ -1,9 +1,9 @@
 # Personal Email Assistant
 
 This project lets you set up your own personal email assistant, who handles relaying incoming email messages to you, hearing your questions or replies, and then writing the reply for you on your behalf.
-It started as a fun little project where I wanted to pretend I had a fancy 18th century butler who manages my emails for me - I've been reading too many Alexandre Dumas novels recently, I think. Anyway, I figured it would be a fun way to annoy my friends and random companies by having their messages answered on my behalf by an AI assistant that speaks whimsical, semi-archaic formal English.
+It started as a fun little project where I wanted to pretend I had a fancy 18th century butler who manages my emails for me, and ended up being a good way to accidentally send lots of spam emails to random poor souls who decided to send me an email. Anyway, I figured it would be a fun way to annoy my friends and random newsletter companies by having their messages answered on my behalf by an AI assistant that speaks in a slightly patronizing Victorian English voice.
 
-Since then, I decided to start generalizing this tool so that it could be configured to assume other personalities too. And in the future, I have more fun ideas, like telling the AI information about specific subjects, and letting it reply on my behalf if emails about those topics come in. Think of it like an advanced version of an "automated OOO" reply email, but for any topic you want.
+WIP: I'm also trying to make this tool be able to support customized personalities. If I can get it working well and consistently enough, I might even try to implement auto-reply features where I let the AI handle sending replies without my intervention, based on some criteria. This feature however still needs some work, so not really ready yet.
 
 ## Required Setup
 
@@ -77,13 +77,3 @@ You will can customize the `config.json` file to set the following properties:
     "debug": true
 }
 ```
-
-### Which emails will the AI assistant try to reply to?
-
-TODO - update the logic here
-
-### Can the persona of the AI assistant be customized?
-
-Yes, it can!
-
-TODO - add details about personality json files and prompts
